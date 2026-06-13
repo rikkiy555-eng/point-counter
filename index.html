@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>道化師ポイントカウンター</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+    }
+
+    /* === セットアップ画面 === */
+    #setup-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    #setup-screen h1 {
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+      color: #e06060;
+    }
+
+    #setup-screen .subtitle {
+      font-size: 0.9rem;
+      color: #aaa;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    .setup-section {
+      width: 100%;
+      max-width: 400px;
+      background: #16213e;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .setup-section h2 {
+      font-size: 1rem;
+      color: #e06060;
+      margin-bottom: 16px;
+    }
+
+    .clown-opt {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 2px solid #333;
+      background: #0a2240;
+      color: #eee;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+      margin-bottom: 10px;
+    }
+
+    .clown-opt:last-child { margin-bottom: 0; }
+
+    .clown-opt.selected {
+      border-color: #e06060;
+      background: #3a1010;
+    }
+
+    .clown-opt .opt-desc {
+      font-size: 0.75rem;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+    /* 待ち時間アトラクション一覧 */
+    #attraction-list {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    #attraction-list.visible { display: flex; }
+
+    .attraction-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #0a1830;
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+
+    .attraction-item input[type="text"] {
+      flex: 1;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #555;
+      color: #eee;
+      font-size: 0.9rem;
+      padding: 2px 4px;
+      outline: none;
+    }
+
+    .attraction-item input[type="number"] {
+      width: 64px;
+      background: #16213e;
+      border: 1px solid #555;
+      border-radius: 6px;
+      color: #eee;
+      font-size: 0.9rem;
+      padding: 4px 6px;
+      text-align: center;
+      outline: none;
+    }
+
+    .attraction-item .min-label { font-size: 0.8rem; color: #aaa; }
+
+    #add-attraction-btn {
+      background: none;
+      border: 1px dashed #555;
+      color: #aaa;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-top: 6px;
+      width: 100%;
+    }
+
+    .start-btn {
+      width: 100%;
+      max-width: 400px;
+      padding: 16px;
+      border-radius: 14px;
+      border: none;
+      background: #e06060;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    /* === カウンター画面 === */
+    #counter-screen {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 16px;
+      padding-bottom: 32px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .header h1 { font-size: 1.2rem; color: #e06060; }
+
+    .skill-badge {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #3a1010;
+      color: #e06060;
+    }
+
+    /* 合計表示 */
+    .total-card {
+      background: #16213e;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .total-label { font-size: 0.85rem; color: #aaa; margin-bottom: 4px; }
+
+    .total-value {
+      font-size: 3.5rem;
+      font-weight: bold;
+      color: #f0c040;
+      line-height: 1;
+    }
+
+    .total-value span { font-size: 1.2rem; color: #aaa; }
+
+    /* ポイントボタン */
+    .section-title {
+      font-size: 0.8rem;
+      color: #aaa;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      margin-top: 4px;
+    }
+
+    .btn-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .point-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #16213e;
+      border: none;
+      border-radius: 14px;
+      padding: 16px 18px;
+      color: #eee;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      width: 100%;
+      text-align: left;
+    }
+
+    .point-btn:active { background: #0f3460; }
+
+    .point-btn .btn-left { display: flex; flex-direction: column; }
+    .point-btn .btn-name { font-size: 0.95rem; }
+    .point-btn .btn-count { font-size: 0.78rem; color: #888; margin-top: 2px; }
+
+    .point-btn .btn-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn-badge {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: #0f3460;
+      color: #7ec8e3;
+      white-space: nowrap;
+    }
+
+    .btn-badge.x2 { background: #3a1010; color: #e06060; }
+    .btn-badge.plus2 { background: #103a10; color: #60e060; }
+
+    .counter-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .counter-minus {
+      background: #2a1a1a;
+      color: #e06060;
+    }
+
+    .counter-minus:active { background: #3a2020; }
+
+    .counter-plus {
+      background: #1a2a40;
+      color: #7ec8e3;
+    }
+
+    .counter-plus:active { background: #2a3a50; }
+
+    /* 待ち時間セクション */
+    #wait-section {
+      display: none;
+      background: #16213e;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    #wait-section.visible { display: block; }
+
+    #wait-section h3 {
+      font-size: 0.9rem;
+      color: #e06060;
+      margin-bottom: 12px;
+    }
+
+    .wait-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .wait-entry {
+      background: #0a2240;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .wait-entry-name { font-size: 0.85rem; color: #aaa; margin-bottom: 6px; }
+
+    .wait-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .wait-minus, .wait-plus {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: #0f3460;
+      color: #eee;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .wait-minus:active, .wait-plus:active { background: #1a4a80; }
+
+    .wait-display {
+      flex: 1;
+      text-align: center;
+    }
+
+    .wait-minutes { font-size: 1.4rem; font-weight: bold; }
+    .wait-pts { font-size: 0.75rem; color: #aaa; }
+
+    /* リセットボタン */
+    .reset-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid #444;
+      background: transparent;
+      color: #888;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .reset-btn:active { background: #222; }
+
+    /* モーダル */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.visible { display: flex; }
+
+    .modal {
+      background: #16213e;
+      border-radius: 16px;
+      padding: 24px;
+      width: 90%;
+      max-width: 360px;
+      text-align: center;
+    }
+
+    .modal h2 { font-size: 1.1rem; color: #f0c040; margin-bottom: 8px; }
+    .modal p { font-size: 0.85rem; color: #aaa; margin-bottom: 20px; }
+
+    .modal-btns { display: flex; gap: 10px; }
+
+    .modal-btns button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .modal-cancel { background: #0f3460; color: #eee; }
+    .modal-confirm { background: #e06060; color: #fff; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<!-- セットアップ画面 -->
+<div id="setup-screen">
+
+
+  <div class="setup-section">
+    <h2>チーム名</h2>
+    <input type="text" id="team-name-input" placeholder="チーム名を入力（任意）"
+      style="width:100%; background:#0a2240; border:1px solid #555; border-radius:8px; color:#eee; font-size:1rem; padding:12px; outline:none;">
+  </div>
+
+  <div class="setup-section">
+    <h2>スキル効果を選択</h2>
+
+    <button class="clown-opt" data-skill="food" onclick="selectSkill(this)">
+      🍔 期間限定フード を2倍
+    </button>
+    <button class="clown-opt" data-skill="wet" onclick="selectSkill(this)">
+      💦 びしょ濡れ体験 を2倍
+    </button>
+    <button class="clown-opt" data-skill="friend" onclick="selectSkill(this)">
+      👋 知り合い発見 を2倍
+    </button>
+    <button class="clown-opt" data-skill="wait" onclick="selectSkill(this)">
+      ⏱️ アトラクション待ち時間ポイントを追加取得
+      <div class="opt-desc">10分＝1pt・1アトラクション1回まで・2倍対象外</div>
+    </button>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">ゲームスタート！</button>
+</div>
+
+<!-- カウンター画面 -->
+<div id="counter-screen">
+  <div class="header">
+    <h1 id="team-name-display">🎪 ポイントカウンター</h1>
+    <div class="skill-badge" id="skill-badge-display"></div>
+  </div>
+
+  <!-- 合計 -->
+  <div class="total-card">
+    <div class="total-label">合計ポイント</div>
+    <div class="total-value" id="total-display">0 <span>pt</span></div>
+  </div>
+
+  <!-- ＋1ボタン群 -->
+  <div class="section-title">＋1 ポイント</div>
+  <div class="btn-grid">
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">🍔 限定フードを食べる</div>
+        <div class="btn-count" id="count-food">0回</div>
+      </div>
+      <div class="btn-right">
+        <div class="btn-badge" id="badge-food">＋1</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('food')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('food')">−</button>
+      </div>
+    </div>
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">👋 知り合いに会う</div>
+        <div class="btn-count" id="count-friend">0回</div>
+      </div>
+      <div class="btn-right">
+        <div class="btn-badge" id="badge-friend">＋1</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('friend')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('friend')">−</button>
+      </div>
+    </div>
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">🎭 キャラクターグリーティング</div>
+        <div class="btn-count" id="count-greet">0回</div>
+      </div>
+      <div class="btn-right">
+        <div class="btn-badge">＋1</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('greet')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('greet')">−</button>
+      </div>
+    </div>
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">💦 びしょ濡れポイントに行く</div>
+        <div class="btn-count" id="count-wet">0回</div>
+      </div>
+      <div class="btn-right">
+        <div class="btn-badge" id="badge-wet">＋1</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('wet')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('wet')">−</button>
+      </div>
+    </div>
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">🎨 キャストアート</div>
+        <div class="btn-count" id="count-art">0回</div>
+      </div>
+      <div class="btn-right">
+        <div class="btn-badge">＋1</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('art')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('art')">−</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ＋2ボタン -->
+  <div class="section-title">＋2 ポイント</div>
+  <div class="btn-grid">
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">✨ インパしているWPCキャスト</div>
+        <div class="btn-count" id="count-wpc">0回</div>
+      </div>
+      <div class="btn-right">
+        <div class="btn-badge plus2">＋2</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('wpc')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('wpc')">−</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ＋10ボタン -->
+  <div class="section-title">＋10 ポイント</div>
+  <div class="btn-grid">
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">🏁 集合に成功</div>
+        <div class="btn-count" id="count-gather">0回</div>
+      </div>
+      <div class="btn-right">
+        <div class="btn-badge" style="background:#2a1060; color:#c0a0ff;">＋10</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('gather')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('gather')">−</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 待ち時間セクション -->
+  <div id="wait-section">
+    <h3>⏱️ アトラクション待ち時間</h3>
+    <p style="font-size:0.78rem; color:#aaa; margin-bottom:12px;">並び始めの時間を入力 ／ 1の位は切り捨て（例：45分→4pt）</p>
+    <div class="wait-list" id="wait-list"></div>
+    <button id="add-attraction-counter-btn" onclick="addAttractionOnCounter()" style="margin-top:10px; background:none; border:1px dashed #555; color:#aaa; border-radius:8px; padding:10px; font-size:0.85rem; cursor:pointer; width:100%;">＋ アトラクションを追加</button>
+  </div>
+
+  <button class="reset-btn" onclick="showResetModal()">リセット（ゲーム終了）</button>
+</div>
+
+<!-- リセット確認モーダル -->
+<div class="modal-overlay" id="reset-modal">
+  <div class="modal">
+    <h2>リセットしますか？</h2>
+    <p>全ポイントがリセットされます。<br>この操作は元に戻せません。</p>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="hideResetModal()">キャンセル</button>
+      <button class="modal-confirm" onclick="resetGame()">リセット</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const state = {
+    skill: null,
+    counts: { gather: 0, food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0 },
+    waitAttractions: [],
+  };
+
+  const BASE_POINTS = { gather: 10, food: 1, friend: 1, greet: 1, wet: 1, art: 1, wpc: 2 };
+  const SKILL_TARGET = { food: 'food', wet: 'wet', friend: 'friend' };
+  const SKILL_LABEL = {
+    food: '限定フード×2',
+    wet: 'びしょ濡れ×2',
+    friend: '知り合い×2',
+    wait: '待ち時間ポイント',
+  };
+
+  function selectSkill(btn) {
+    document.querySelectorAll('.clown-opt').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    state.skill = btn.dataset.skill;
+  }
+
+  function startGame() {
+    if (!state.skill) { alert('スキルを選択してください'); return; }
+
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('counter-screen').style.display = 'flex';
+
+    const teamName = document.getElementById('team-name-input').value.trim();
+    document.getElementById('team-name-display').textContent = teamName || '🎪 ポイントカウンター';
+    document.getElementById('skill-badge-display').textContent = SKILL_LABEL[state.skill];
+
+    if (state.skill === 'wait') {
+      document.getElementById('wait-section').classList.add('visible');
+    } else {
+      const key = SKILL_TARGET[state.skill];
+      const badgeEl = document.getElementById('badge-' + key);
+      if (badgeEl) { badgeEl.textContent = '＋1 ×2'; badgeEl.classList.add('x2'); }
+    }
+  }
+
+  function addAttractionOnCounter() {
+    const idx = state.waitAttractions.length;
+    state.waitAttractions.push({ name: '', minutes: 0 });
+
+    const container = document.getElementById('wait-list');
+    const div = document.createElement('div');
+    div.className = 'wait-entry';
+    div.id = `wait-entry-${idx}`;
+    div.innerHTML = `
+      <input type="text" placeholder="アトラクション名（任意）"
+             style="background:transparent; border:none; border-bottom:1px solid #555; color:#eee; font-size:0.85rem; padding:2px 4px; outline:none; width:100%; margin-bottom:8px;"
+             oninput="state.waitAttractions[${idx}].name = this.value; document.getElementById('wait-name-${idx}').textContent = this.value || 'アトラクション${idx+1}'">
+      <div class="wait-controls">
+        <button class="wait-minus" onclick="changeWait(${idx}, -10)">−</button>
+        <div class="wait-display">
+          <div class="wait-minutes" id="wait-min-${idx}">0分</div>
+          <div class="wait-pts" id="wait-pts-${idx}">0pt</div>
+        </div>
+        <button class="wait-plus" onclick="changeWait(${idx}, 10)">＋</button>
+      </div>
+    `;
+    container.appendChild(div);
+    updateTotal();
+  }
+
+  function changeWait(idx, delta) {
+    const a = state.waitAttractions[idx];
+    a.minutes = Math.max(0, a.minutes + delta);
+    document.getElementById(`wait-min-${idx}`).textContent = a.minutes + '分';
+    document.getElementById(`wait-pts-${idx}`).textContent = Math.floor(a.minutes / 10) + 'pt';
+    updateTotal();
+  }
+
+  function addPoint(key) {
+    state.counts[key]++;
+    document.getElementById(`count-${key}`).textContent = state.counts[key] + '回';
+    updateTotal();
+  }
+
+  function subtractPoint(key) {
+    if (state.counts[key] <= 0) return;
+    state.counts[key]--;
+    document.getElementById(`count-${key}`).textContent = state.counts[key] + '回';
+    updateTotal();
+  }
+
+  function calcTotal() {
+    let total = 0;
+    for (const [key, count] of Object.entries(state.counts)) {
+      let pts = BASE_POINTS[key] * count;
+      if (state.skill !== 'wait' && key === SKILL_TARGET[state.skill]) pts *= 2;
+      total += pts;
+    }
+    if (state.skill === 'wait') {
+      for (const a of state.waitAttractions) total += Math.floor(a.minutes / 10);
+    }
+    return total;
+  }
+
+  function updateTotal() {
+    document.getElementById('total-display').innerHTML = calcTotal() + ' <span>pt</span>';
+  }
+
+  function showResetModal() {
+    document.getElementById('reset-modal').classList.add('visible');
+  }
+
+  function hideResetModal() {
+    document.getElementById('reset-modal').classList.remove('visible');
+  }
+
+  function resetGame() {
+    hideResetModal();
+    state.skill = null;
+    state.counts = { food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0 };
+    state.waitAttractions = [];
+
+    document.querySelectorAll('.clown-opt').forEach(b => b.classList.remove('selected'));
+
+    ['gather','food','friend','greet','wet','art','wpc'].forEach(k => {
+      const el = document.getElementById('count-' + k);
+      if (el) el.textContent = '0回';
+    });
+
+    ['food','friend','wet'].forEach(k => {
+      const el = document.getElementById('badge-' + k);
+      if (el) { el.textContent = '＋1'; el.classList.remove('x2'); }
+    });
+
+    document.getElementById('wait-section').classList.remove('visible');
+    document.getElementById('wait-list').innerHTML = '';
+    document.getElementById('total-display').innerHTML = '0 <span>pt</span>';
+
+    document.getElementById('counter-screen').style.display = 'none';
+    document.getElementById('setup-screen').style.display = 'flex';
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+</script>
+</body>
+</html>
