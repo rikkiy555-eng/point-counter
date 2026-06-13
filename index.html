@@ -477,7 +477,7 @@
     <h2>スキル効果を選択</h2>
 
     <button class="clown-opt" data-skill="food" onclick="selectSkill(this)">
-      🍔 期間限定フード を2倍
+      🍔 夏メニュー を2倍
     </button>
     <button class="clown-opt" data-skill="wet" onclick="selectSkill(this)">
       💦 びしょ濡れ体験 を2倍
@@ -500,11 +500,13 @@
     <h1 id="team-name-display">🎪 ポイントカウンター</h1>
     <div class="skill-badge" id="skill-badge-display"></div>
   </div>
+  <div id="skill-detail" style="font-size:0.78rem; color:var(--accent); background:var(--accent-bg); border-radius:8px; padding:6px 12px; margin-bottom:12px; display:none;"></div>
 
   <!-- 合計 -->
   <div class="total-card">
     <div class="total-label">合計ポイント</div>
     <div class="total-value" id="total-display">0 <span>pt</span></div>
+    <div id="breakdown" style="margin-top:10px; font-size:0.78rem; color:var(--text2); display:flex; flex-wrap:wrap; gap:6px; justify-content:center;"></div>
   </div>
 
   <!-- ＋1ボタン群 -->
@@ -641,10 +643,25 @@
   const BASE_POINTS = { gather: 10, food: 1, friend: 1, greet: 1, wet: 1, art: 1, wpc: 2 };
   const SKILL_TARGET = { food: 'food', wet: 'wet', friend: 'friend' };
   const SKILL_LABEL = {
-    food: '限定フード×2',
+    food: '夏メニュー×2',
     wet: 'びしょ濡れ×2',
     friend: '知り合い×2',
     wait: '待ち時間ポイント',
+  };
+  const SKILL_DETAIL = {
+    food: '🍔 夏メニューを食べる が2倍になります',
+    wet: '💦 びしょ濡れポイントで濡れる が2倍になります',
+    friend: '👋 勤務中の知り合いに会う が2倍になります',
+    wait: '⏱️ アトラクション待ち時間ポイントを追加取得できます',
+  };
+  const ITEM_LABEL = {
+    gather: '🏁集合',
+    food: '🍔夏メニュー',
+    friend: '👋知り合い',
+    greet: '🎭グリーティング',
+    wet: '💦びしょ濡れ',
+    art: '🎨キャストアート',
+    wpc: '✨WPCキャスト',
   };
   const SAVE_KEY = 'point_counter_state';
 
@@ -659,24 +676,27 @@
     Object.assign(state, s);
   }
 
+  function showSkillDetail() {
+    const el = document.getElementById('skill-detail');
+    el.textContent = SKILL_DETAIL[state.skill];
+    el.style.display = 'block';
+  }
+
   function restoreUI() {
     if (!state.gameStarted) return;
 
-    // セットアップ→カウンター画面切り替え
     document.getElementById('setup-screen').style.display = 'none';
     document.getElementById('counter-screen').style.display = 'flex';
 
-    // チーム名・スキルバッジ
     document.getElementById('team-name-display').textContent = state.teamName || '🎪 ポイントカウンター';
     document.getElementById('skill-badge-display').textContent = SKILL_LABEL[state.skill];
+    showSkillDetail();
 
-    // カウント表示
     ['gather','food','friend','greet','wet','art','wpc'].forEach(k => {
       const el = document.getElementById('count-' + k);
       if (el) el.textContent = state.counts[k] + '回';
     });
 
-    // スキル適用
     if (state.skill === 'wait') {
       document.getElementById('wait-section').classList.add('visible');
       state.waitAttractions.forEach((a, idx) => addWaitEntryDOM(idx, a));
@@ -707,6 +727,7 @@
 
     document.getElementById('team-name-display').textContent = state.teamName || '🎪 ポイントカウンター';
     document.getElementById('skill-badge-display').textContent = SKILL_LABEL[state.skill];
+    showSkillDetail();
 
     if (state.skill === 'wait') {
       document.getElementById('wait-section').classList.add('visible');
@@ -723,9 +744,13 @@
     div.className = 'wait-entry';
     div.id = `wait-entry-${idx}`;
     div.innerHTML = `
-      <input type="text" placeholder="アトラクション名（任意）" value="${escapeHtml(a.name)}"
-             style="background:transparent; border:none; border-bottom:1px solid #555; color:#eee; font-size:0.85rem; padding:2px 4px; outline:none; width:100%; margin-bottom:8px;"
-             oninput="state.waitAttractions[${idx}].name = this.value; saveState();">
+      <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+        <input type="text" placeholder="アトラクション名（任意）" value="${escapeHtml(a.name)}"
+               style="flex:1; background:transparent; border:none; border-bottom:1px solid var(--border); color:var(--text); font-size:0.85rem; padding:2px 4px; outline:none;"
+               oninput="state.waitAttractions[${idx}].name = this.value; saveState();">
+        <button onclick="deleteAttraction(${idx})"
+                style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer; padding:2px 6px;">✕</button>
+      </div>
       <div class="wait-controls">
         <button class="wait-minus" onclick="changeWait(${idx}, -10)">−</button>
         <div class="wait-display">
@@ -736,6 +761,15 @@
       </div>
     `;
     container.appendChild(div);
+  }
+
+  function deleteAttraction(idx) {
+    state.waitAttractions.splice(idx, 1);
+    saveState();
+    // リスト全再描画
+    document.getElementById('wait-list').innerHTML = '';
+    state.waitAttractions.forEach((a, i) => addWaitEntryDOM(i, a));
+    updateTotal();
   }
 
   function addAttractionOnCounter() {
@@ -785,6 +819,30 @@
 
   function updateTotal() {
     document.getElementById('total-display').innerHTML = calcTotal() + ' <span>pt</span>';
+
+    // 内訳
+    const items = [];
+    for (const [key, count] of Object.entries(state.counts)) {
+      if (count === 0) continue;
+      let pts = BASE_POINTS[key] * count;
+      const isDouble = state.skill !== 'wait' && key === SKILL_TARGET[state.skill];
+      if (isDouble) pts *= 2;
+      items.push(`${ITEM_LABEL[key]}×${count}${isDouble ? '×2' : ''}＝${pts}pt`);
+    }
+    if (state.skill === 'wait') {
+      state.waitAttractions.forEach(a => {
+        if (a.minutes > 0) {
+          const name = a.name || 'アトラクション';
+          items.push(`⏱${name}${Math.floor(a.minutes/10)}pt`);
+        }
+      });
+    }
+    const bd = document.getElementById('breakdown');
+    if (bd) {
+      bd.innerHTML = items.map(t =>
+        `<span style="background:var(--bg3); border-radius:6px; padding:2px 7px;">${t}</span>`
+      ).join('');
+    }
   }
 
   function showResetModal() {
