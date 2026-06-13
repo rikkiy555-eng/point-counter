@@ -762,7 +762,6 @@ function restoreUI() {
 
   function addPoint(key) {
     state.counts[key]++;
-    document.getElementById(`count-${key}`).textContent = state.counts[key] + '回';
     saveState();
     updateTotal();
   }
@@ -770,7 +769,6 @@ function restoreUI() {
   function subtractPoint(key) {
     if (state.counts[key] <= 0) return;
     state.counts[key]--;
-    document.getElementById(`count-${key}`).textContent = state.counts[key] + '回';
     saveState();
     updateTotal();
   }
