@@ -558,8 +558,10 @@
 <script>
   const state = {
     skill: null,
+    teamName: '',
     counts: { gather: 0, food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0 },
     waitAttractions: [],
+    gameStarted: false,
   };
 
   const BASE_POINTS = { gather: 10, food: 1, friend: 1, greet: 1, wet: 1, art: 1, wpc: 2 };
@@ -570,6 +572,48 @@
     friend: '知り合い×2',
     wait: '待ち時間ポイント',
   };
+  const SAVE_KEY = 'point_counter_state';
+
+  function saveState() {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+  }
+
+  function loadState() {
+    const saved = localStorage.getItem(SAVE_KEY);
+    if (!saved) return;
+    const s = JSON.parse(saved);
+    Object.assign(state, s);
+  }
+
+  function restoreUI() {
+    if (!state.gameStarted) return;
+
+    // セットアップ→カウンター画面切り替え
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('counter-screen').style.display = 'flex';
+
+    // チーム名・スキルバッジ
+    document.getElementById('team-name-display').textContent = state.teamName || '🎪 ポイントカウンター';
+    document.getElementById('skill-badge-display').textContent = SKILL_LABEL[state.skill];
+
+    // カウント表示
+    ['gather','food','friend','greet','wet','art','wpc'].forEach(k => {
+      const el = document.getElementById('count-' + k);
+      if (el) el.textContent = state.counts[k] + '回';
+    });
+
+    // スキル適用
+    if (state.skill === 'wait') {
+      document.getElementById('wait-section').classList.add('visible');
+      state.waitAttractions.forEach((a, idx) => addWaitEntryDOM(idx, a));
+    } else {
+      const key = SKILL_TARGET[state.skill];
+      const badgeEl = document.getElementById('badge-' + key);
+      if (badgeEl) { badgeEl.textContent = '＋1 ×2'; badgeEl.classList.add('x2'); }
+    }
+
+    updateTotal();
+  }
 
   function selectSkill(btn) {
     document.querySelectorAll('.clown-opt').forEach(b => b.classList.remove('selected'));
@@ -580,11 +624,14 @@
   function startGame() {
     if (!state.skill) { alert('スキルを選択してください'); return; }
 
+    state.teamName = document.getElementById('team-name-input').value.trim();
+    state.gameStarted = true;
+    saveState();
+
     document.getElementById('setup-screen').style.display = 'none';
     document.getElementById('counter-screen').style.display = 'flex';
 
-    const teamName = document.getElementById('team-name-input').value.trim();
-    document.getElementById('team-name-display').textContent = teamName || '🎪 ポイントカウンター';
+    document.getElementById('team-name-display').textContent = state.teamName || '🎪 ポイントカウンター';
     document.getElementById('skill-badge-display').textContent = SKILL_LABEL[state.skill];
 
     if (state.skill === 'wait') {
@@ -596,28 +643,32 @@
     }
   }
 
-  function addAttractionOnCounter() {
-    const idx = state.waitAttractions.length;
-    state.waitAttractions.push({ name: '', minutes: 0 });
-
+  function addWaitEntryDOM(idx, a) {
     const container = document.getElementById('wait-list');
     const div = document.createElement('div');
     div.className = 'wait-entry';
     div.id = `wait-entry-${idx}`;
     div.innerHTML = `
-      <input type="text" placeholder="アトラクション名（任意）"
+      <input type="text" placeholder="アトラクション名（任意）" value="${escapeHtml(a.name)}"
              style="background:transparent; border:none; border-bottom:1px solid #555; color:#eee; font-size:0.85rem; padding:2px 4px; outline:none; width:100%; margin-bottom:8px;"
-             oninput="state.waitAttractions[${idx}].name = this.value; document.getElementById('wait-name-${idx}').textContent = this.value || 'アトラクション${idx+1}'">
+             oninput="state.waitAttractions[${idx}].name = this.value; saveState();">
       <div class="wait-controls">
         <button class="wait-minus" onclick="changeWait(${idx}, -10)">−</button>
         <div class="wait-display">
-          <div class="wait-minutes" id="wait-min-${idx}">0分</div>
-          <div class="wait-pts" id="wait-pts-${idx}">0pt</div>
+          <div class="wait-minutes" id="wait-min-${idx}">${a.minutes}分</div>
+          <div class="wait-pts" id="wait-pts-${idx}">${Math.floor(a.minutes/10)}pt</div>
         </div>
         <button class="wait-plus" onclick="changeWait(${idx}, 10)">＋</button>
       </div>
     `;
     container.appendChild(div);
+  }
+
+  function addAttractionOnCounter() {
+    const idx = state.waitAttractions.length;
+    state.waitAttractions.push({ name: '', minutes: 0 });
+    addWaitEntryDOM(idx, state.waitAttractions[idx]);
+    saveState();
     updateTotal();
   }
 
@@ -626,12 +677,14 @@
     a.minutes = Math.max(0, a.minutes + delta);
     document.getElementById(`wait-min-${idx}`).textContent = a.minutes + '分';
     document.getElementById(`wait-pts-${idx}`).textContent = Math.floor(a.minutes / 10) + 'pt';
+    saveState();
     updateTotal();
   }
 
   function addPoint(key) {
     state.counts[key]++;
     document.getElementById(`count-${key}`).textContent = state.counts[key] + '回';
+    saveState();
     updateTotal();
   }
 
@@ -639,6 +692,7 @@
     if (state.counts[key] <= 0) return;
     state.counts[key]--;
     document.getElementById(`count-${key}`).textContent = state.counts[key] + '回';
+    saveState();
     updateTotal();
   }
 
@@ -669,9 +723,12 @@
 
   function resetGame() {
     hideResetModal();
+    localStorage.removeItem(SAVE_KEY);
     state.skill = null;
-    state.counts = { food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0 };
+    state.teamName = '';
+    state.counts = { gather: 0, food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0 };
     state.waitAttractions = [];
+    state.gameStarted = false;
 
     document.querySelectorAll('.clown-opt').forEach(b => b.classList.remove('selected'));
 
@@ -688,6 +745,7 @@
     document.getElementById('wait-section').classList.remove('visible');
     document.getElementById('wait-list').innerHTML = '';
     document.getElementById('total-display').innerHTML = '0 <span>pt</span>';
+    document.getElementById('team-name-input').value = '';
 
     document.getElementById('counter-screen').style.display = 'none';
     document.getElementById('setup-screen').style.display = 'flex';
@@ -696,6 +754,10 @@
   function escapeHtml(str) {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
+
+  // 起動時に保存データを復元
+  loadState();
+  restoreUI();
 </script>
 </body>
 </html>
