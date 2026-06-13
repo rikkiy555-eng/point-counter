@@ -500,7 +500,6 @@
     <h1 id="team-name-display">🎪 ポイントカウンター</h1>
     <div class="skill-badge" id="skill-badge-display"></div>
   </div>
-  <div id="skill-detail" style="font-size:0.78rem; color:var(--accent); background:var(--accent-bg); border-radius:8px; padding:6px 12px; margin-bottom:12px; display:none;"></div>
 
   <!-- 合計 -->
   <div class="total-card">
@@ -648,13 +647,7 @@
     friend: '知り合い×2',
     wait: '待ち時間ポイント',
   };
-  const SKILL_DETAIL = {
-    food: '🍔 夏メニューを食べる が2倍になります',
-    wet: '💦 びしょ濡れポイントで濡れる が2倍になります',
-    friend: '👋 勤務中の知り合いに会う が2倍になります',
-    wait: '⏱️ アトラクション待ち時間ポイントを追加取得できます',
-  };
-  const ITEM_LABEL = {
+const ITEM_LABEL = {
     gather: '🏁集合',
     food: '🍔夏メニュー',
     friend: '👋知り合い',
@@ -676,13 +669,7 @@
     Object.assign(state, s);
   }
 
-  function showSkillDetail() {
-    const el = document.getElementById('skill-detail');
-    el.textContent = SKILL_DETAIL[state.skill];
-    el.style.display = 'block';
-  }
-
-  function restoreUI() {
+function restoreUI() {
     if (!state.gameStarted) return;
 
     document.getElementById('setup-screen').style.display = 'none';
@@ -690,7 +677,6 @@
 
     document.getElementById('team-name-display').textContent = state.teamName || '🎪 ポイントカウンター';
     document.getElementById('skill-badge-display').textContent = SKILL_LABEL[state.skill];
-    showSkillDetail();
 
     ['gather','food','friend','greet','wet','art','wpc'].forEach(k => {
       const el = document.getElementById('count-' + k);
@@ -727,7 +713,6 @@
 
     document.getElementById('team-name-display').textContent = state.teamName || '🎪 ポイントカウンター';
     document.getElementById('skill-badge-display').textContent = SKILL_LABEL[state.skill];
-    showSkillDetail();
 
     if (state.skill === 'wait') {
       document.getElementById('wait-section').classList.add('visible');
