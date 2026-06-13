@@ -29,9 +29,17 @@
       --plus2-bg:  #103a10;
       --plus2-fg:  #60e060;
       --wait-btn:  #0f3460;
+      --glow-card: 0 0 8px #7ec8e366, 0 0 2px #7ec8e3aa;
+      --glow-plus: 0 0 10px #7ec8e3bb;
+      --glow-minus: 0 0 10px #e06060bb;
+      --glow-total: 0 0 12px #f0c04088, 0 0 3px #f0c040cc;
     }
 
     body.light {
+      --glow-card:  none;
+      --glow-plus:  none;
+      --glow-minus: none;
+      --glow-total: none;
       --bg:        #f0f2f5;
       --bg2:       #ffffff;
       --bg3:       #e8edf2;
@@ -248,6 +256,8 @@
       padding: 20px;
       text-align: center;
       margin-bottom: 20px;
+      box-shadow: var(--glow-total);
+      border: 1px solid #f0c04044;
     }
 
     .total-label { font-size: 0.85rem; color: var(--text2); margin-bottom: 4px; }
@@ -282,7 +292,7 @@
       align-items: center;
       justify-content: space-between;
       background: var(--bg2);
-      border: none;
+      border: 1px solid #7ec8e322;
       border-radius: 14px;
       padding: 16px 18px;
       color: var(--text);
@@ -291,6 +301,7 @@
       transition: background 0.15s, transform 0.1s;
       width: 100%;
       text-align: left;
+      box-shadow: var(--glow-card);
     }
 
     .point-btn:active { background: var(--bg4); }
@@ -335,6 +346,7 @@
     .counter-minus {
       background: var(--minus-bg);
       color: var(--minus-fg);
+      box-shadow: var(--glow-minus);
     }
 
     .counter-minus:active { opacity: 0.7; }
@@ -342,6 +354,7 @@
     .counter-plus {
       background: var(--plus-bg);
       color: var(--plus-fg);
+      box-shadow: var(--glow-plus);
     }
 
     .counter-plus:active { opacity: 0.7; }
@@ -350,9 +363,11 @@
     #wait-section {
       display: none;
       background: var(--bg2);
+      border: 1px solid #7ec8e322;
       border-radius: 16px;
       padding: 16px;
       margin-bottom: 20px;
+      box-shadow: var(--glow-card);
     }
 
     #wait-section.visible { display: block; }
