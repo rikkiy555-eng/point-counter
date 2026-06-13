@@ -7,11 +7,74 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
 
+    /* === テーマ変数 === */
+    :root {
+      --bg:        #1a1a2e;
+      --bg2:       #16213e;
+      --bg3:       #0a2240;
+      --bg4:       #0f3460;
+      --text:      #eeeeee;
+      --text2:     #aaaaaa;
+      --text3:     #888888;
+      --border:    #333333;
+      --accent:    #e06060;
+      --accent-bg: #3a1010;
+      --total:     #f0c040;
+      --plus-bg:   #1a2a40;
+      --plus-fg:   #7ec8e3;
+      --minus-bg:  #2a1a1a;
+      --minus-fg:  #e06060;
+      --badge-bg:  #0f3460;
+      --badge-fg:  #7ec8e3;
+      --plus2-bg:  #103a10;
+      --plus2-fg:  #60e060;
+      --wait-btn:  #0f3460;
+    }
+
+    body.light {
+      --bg:        #f0f2f5;
+      --bg2:       #ffffff;
+      --bg3:       #e8edf2;
+      --bg4:       #d0dae6;
+      --text:      #1a1a2e;
+      --text2:     #555555;
+      --text3:     #888888;
+      --border:    #cccccc;
+      --accent:    #c0392b;
+      --accent-bg: #fde8e8;
+      --total:     #c0780a;
+      --plus-bg:   #dbeeff;
+      --plus-fg:   #1a6fa8;
+      --minus-bg:  #fde8e8;
+      --minus-fg:  #c0392b;
+      --badge-bg:  #dbeeff;
+      --badge-fg:  #1a6fa8;
+      --plus2-bg:  #e0f5e0;
+      --plus2-fg:  #1a8a1a;
+      --wait-btn:  #d0dae6;
+    }
+
     body {
       font-family: 'Helvetica Neue', Arial, sans-serif;
-      background: #1a1a2e;
-      color: #eee;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    /* テーマ切り替えボタン */
+    .theme-btn {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 200;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      color: var(--text2);
+      cursor: pointer;
     }
 
     /* === セットアップ画面 === */
@@ -22,17 +85,18 @@
       justify-content: center;
       min-height: 100vh;
       padding: 24px;
+      padding-top: 60px;
     }
 
     #setup-screen h1 {
       font-size: 1.6rem;
       margin-bottom: 8px;
-      color: #e06060;
+      color: var(--accent);
     }
 
     #setup-screen .subtitle {
       font-size: 0.9rem;
-      color: #aaa;
+      color: var(--text2);
       margin-bottom: 32px;
       text-align: center;
     }
@@ -40,7 +104,7 @@
     .setup-section {
       width: 100%;
       max-width: 400px;
-      background: #16213e;
+      background: var(--bg2);
       border-radius: 16px;
       padding: 20px;
       margin-bottom: 16px;
@@ -48,7 +112,7 @@
 
     .setup-section h2 {
       font-size: 1rem;
-      color: #e06060;
+      color: var(--accent);
       margin-bottom: 16px;
     }
 
@@ -57,9 +121,9 @@
       width: 100%;
       padding: 14px;
       border-radius: 10px;
-      border: 2px solid #333;
-      background: #0a2240;
-      color: #eee;
+      border: 2px solid var(--border);
+      background: var(--bg3);
+      color: var(--text);
       font-size: 0.95rem;
       cursor: pointer;
       text-align: left;
@@ -70,13 +134,13 @@
     .clown-opt:last-child { margin-bottom: 0; }
 
     .clown-opt.selected {
-      border-color: #e06060;
-      background: #3a1010;
+      border-color: var(--accent);
+      background: var(--accent-bg);
     }
 
     .clown-opt .opt-desc {
       font-size: 0.75rem;
-      color: #aaa;
+      color: var(--text2);
       margin-top: 4px;
     }
 
@@ -94,7 +158,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: #0a1830;
+      background: var(--bg3);
       border-radius: 8px;
       padding: 8px 12px;
     }
@@ -103,8 +167,8 @@
       flex: 1;
       background: transparent;
       border: none;
-      border-bottom: 1px solid #555;
-      color: #eee;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
       font-size: 0.9rem;
       padding: 2px 4px;
       outline: none;
@@ -112,22 +176,22 @@
 
     .attraction-item input[type="number"] {
       width: 64px;
-      background: #16213e;
-      border: 1px solid #555;
+      background: var(--bg2);
+      border: 1px solid var(--border);
       border-radius: 6px;
-      color: #eee;
+      color: var(--text);
       font-size: 0.9rem;
       padding: 4px 6px;
       text-align: center;
       outline: none;
     }
 
-    .attraction-item .min-label { font-size: 0.8rem; color: #aaa; }
+    .attraction-item .min-label { font-size: 0.8rem; color: var(--text2); }
 
     #add-attraction-btn {
       background: none;
-      border: 1px dashed #555;
-      color: #aaa;
+      border: 1px dashed var(--border);
+      color: var(--text2);
       border-radius: 8px;
       padding: 8px;
       font-size: 0.85rem;
@@ -142,7 +206,7 @@
       padding: 16px;
       border-radius: 14px;
       border: none;
-      background: #e06060;
+      background: var(--accent);
       color: #fff;
       font-size: 1.1rem;
       font-weight: bold;
@@ -156,6 +220,7 @@
       flex-direction: column;
       min-height: 100vh;
       padding: 16px;
+      padding-top: 60px;
       padding-bottom: 32px;
     }
 
@@ -166,40 +231,40 @@
       margin-bottom: 16px;
     }
 
-    .header h1 { font-size: 1.2rem; color: #e06060; }
+    .header h1 { font-size: 1.2rem; color: var(--accent); }
 
     .skill-badge {
       font-size: 0.72rem;
       padding: 4px 10px;
       border-radius: 20px;
-      background: #3a1010;
-      color: #e06060;
+      background: var(--accent-bg);
+      color: var(--accent);
     }
 
     /* 合計表示 */
     .total-card {
-      background: #16213e;
+      background: var(--bg2);
       border-radius: 16px;
       padding: 20px;
       text-align: center;
       margin-bottom: 20px;
     }
 
-    .total-label { font-size: 0.85rem; color: #aaa; margin-bottom: 4px; }
+    .total-label { font-size: 0.85rem; color: var(--text2); margin-bottom: 4px; }
 
     .total-value {
       font-size: 3.5rem;
       font-weight: bold;
-      color: #f0c040;
+      color: var(--total);
       line-height: 1;
     }
 
-    .total-value span { font-size: 1.2rem; color: #aaa; }
+    .total-value span { font-size: 1.2rem; color: var(--text2); }
 
     /* ポイントボタン */
     .section-title {
       font-size: 0.8rem;
-      color: #aaa;
+      color: var(--text2);
       letter-spacing: 1px;
       margin-bottom: 10px;
       margin-top: 4px;
@@ -216,11 +281,11 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #16213e;
+      background: var(--bg2);
       border: none;
       border-radius: 14px;
       padding: 16px 18px;
-      color: #eee;
+      color: var(--text);
       font-size: 1rem;
       cursor: pointer;
       transition: background 0.15s, transform 0.1s;
@@ -228,11 +293,11 @@
       text-align: left;
     }
 
-    .point-btn:active { background: #0f3460; }
+    .point-btn:active { background: var(--bg4); }
 
     .point-btn .btn-left { display: flex; flex-direction: column; }
     .point-btn .btn-name { font-size: 0.95rem; }
-    .point-btn .btn-count { font-size: 0.78rem; color: #888; margin-top: 2px; }
+    .point-btn .btn-count { font-size: 0.78rem; color: var(--text3); margin-top: 2px; }
 
     .point-btn .btn-right {
       display: flex;
@@ -245,13 +310,13 @@
       font-size: 0.75rem;
       padding: 2px 8px;
       border-radius: 20px;
-      background: #0f3460;
-      color: #7ec8e3;
+      background: var(--badge-bg);
+      color: var(--badge-fg);
       white-space: nowrap;
     }
 
-    .btn-badge.x2 { background: #3a1010; color: #e06060; }
-    .btn-badge.plus2 { background: #103a10; color: #60e060; }
+    .btn-badge.x2 { background: var(--accent-bg); color: var(--accent); }
+    .btn-badge.plus2 { background: var(--plus2-bg); color: var(--plus2-fg); }
 
     .counter-btn {
       width: 52px;
@@ -268,23 +333,23 @@
     }
 
     .counter-minus {
-      background: #2a1a1a;
-      color: #e06060;
+      background: var(--minus-bg);
+      color: var(--minus-fg);
     }
 
-    .counter-minus:active { background: #3a2020; }
+    .counter-minus:active { opacity: 0.7; }
 
     .counter-plus {
-      background: #1a2a40;
-      color: #7ec8e3;
+      background: var(--plus-bg);
+      color: var(--plus-fg);
     }
 
-    .counter-plus:active { background: #2a3a50; }
+    .counter-plus:active { opacity: 0.7; }
 
     /* 待ち時間セクション */
     #wait-section {
       display: none;
-      background: #16213e;
+      background: var(--bg2);
       border-radius: 16px;
       padding: 16px;
       margin-bottom: 20px;
@@ -294,19 +359,19 @@
 
     #wait-section h3 {
       font-size: 0.9rem;
-      color: #e06060;
+      color: var(--accent);
       margin-bottom: 12px;
     }
 
     .wait-list { display: flex; flex-direction: column; gap: 10px; }
 
     .wait-entry {
-      background: #0a2240;
+      background: var(--bg3);
       border-radius: 10px;
       padding: 12px;
     }
 
-    .wait-entry-name { font-size: 0.85rem; color: #aaa; margin-bottom: 6px; }
+    .wait-entry-name { font-size: 0.85rem; color: var(--text2); margin-bottom: 6px; }
 
     .wait-controls {
       display: flex;
@@ -319,8 +384,8 @@
       height: 40px;
       border-radius: 50%;
       border: none;
-      background: #0f3460;
-      color: #eee;
+      background: var(--wait-btn);
+      color: var(--text);
       font-size: 1.3rem;
       cursor: pointer;
       display: flex;
@@ -329,7 +394,7 @@
       flex-shrink: 0;
     }
 
-    .wait-minus:active, .wait-plus:active { background: #1a4a80; }
+    .wait-minus:active, .wait-plus:active { opacity: 0.7; }
 
     .wait-display {
       flex: 1;
@@ -337,22 +402,22 @@
     }
 
     .wait-minutes { font-size: 1.4rem; font-weight: bold; }
-    .wait-pts { font-size: 0.75rem; color: #aaa; }
+    .wait-pts { font-size: 0.75rem; color: var(--text2); }
 
     /* リセットボタン */
     .reset-btn {
       width: 100%;
       padding: 14px;
       border-radius: 14px;
-      border: 1px solid #444;
+      border: 1px solid var(--border);
       background: transparent;
-      color: #888;
+      color: var(--text2);
       font-size: 0.9rem;
       cursor: pointer;
       margin-top: 8px;
     }
 
-    .reset-btn:active { background: #222; }
+    .reset-btn:active { opacity: 0.7; }
 
     /* モーダル */
     .modal-overlay {
@@ -368,7 +433,7 @@
     .modal-overlay.visible { display: flex; }
 
     .modal {
-      background: #16213e;
+      background: var(--bg2);
       border-radius: 16px;
       padding: 24px;
       width: 90%;
@@ -376,8 +441,8 @@
       text-align: center;
     }
 
-    .modal h2 { font-size: 1.1rem; color: #f0c040; margin-bottom: 8px; }
-    .modal p { font-size: 0.85rem; color: #aaa; margin-bottom: 20px; }
+    .modal h2 { font-size: 1.1rem; color: var(--total); margin-bottom: 8px; }
+    .modal p { font-size: 0.85rem; color: var(--text2); margin-bottom: 20px; }
 
     .modal-btns { display: flex; gap: 10px; }
 
@@ -390,11 +455,13 @@
       cursor: pointer;
     }
 
-    .modal-cancel { background: #0f3460; color: #eee; }
-    .modal-confirm { background: #e06060; color: #fff; font-weight: bold; }
+    .modal-cancel { background: var(--bg4); color: var(--text); }
+    .modal-confirm { background: var(--accent); color: #fff; font-weight: bold; }
   </style>
 </head>
 <body>
+
+<button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀️ ライト</button>
 
 <!-- セットアップ画面 -->
 <div id="setup-screen">
@@ -762,7 +829,23 @@
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
+  // テーマ切り替え
+  function toggleTheme() {
+    const isLight = document.body.classList.toggle('light');
+    document.getElementById('theme-btn').textContent = isLight ? '🌙 ダーク' : '☀️ ライト';
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  }
+
+  function applyTheme() {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'light') {
+      document.body.classList.add('light');
+      document.getElementById('theme-btn').textContent = '🌙 ダーク';
+    }
+  }
+
   // 起動時に保存データを復元
+  applyTheme();
   loadState();
   restoreUI();
 </script>
