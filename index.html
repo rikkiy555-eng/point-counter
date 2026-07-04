@@ -539,6 +539,16 @@
 
     <div class="point-btn">
       <div class="btn-left">
+        <div class="btn-name">🍔 フード完食</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">スキル効果の対象外・常に＋1pt</div>
+      </div>
+      <div class="btn-right">
+        <div class="btn-badge">＋1</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('foodComplete')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('foodComplete')">−</button>
+      </div>
+    </div>
+    <div class="point-btn">
+      <div class="btn-left">
         <div class="btn-name">👋 勤務中の知り合いに会う(所属問わず)</div>      </div>
       <div class="btn-right">
         <div class="btn-badge" id="badge-friend">＋1</div>
@@ -712,15 +722,17 @@
 </div>
 
 <script>
+  const DEFAULT_COUNTS = { gather: 0, food: 0, foodComplete: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0, duel: 0, carnivalBet: 0, carnivalClear1: 0, carnivalClear2: 0, carnivalClear3: 0, carnivalClear4: 0, carnivalFail: 0 };
+
   const state = {
     skill: null,
     teamName: '',
-    counts: { gather: 0, food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0, duel: 0, carnivalBet: 0, carnivalClear1: 0, carnivalClear2: 0, carnivalClear3: 0, carnivalClear4: 0, carnivalFail: 0 },
+    counts: { ...DEFAULT_COUNTS },
     waitAttractions: [],
     gameStarted: false,
   };
 
-  const BASE_POINTS = { gather: 10, food: 1, friend: 1, greet: 1, wet: 1, art: 1, wpc: 2, duel: 5, carnivalBet: -1, carnivalClear1: 4, carnivalClear2: 3, carnivalClear3: 2, carnivalClear4: 1, carnivalFail: -2 };
+  const BASE_POINTS = { gather: 10, food: 1, foodComplete: 1, friend: 1, greet: 1, wet: 1, art: 1, wpc: 2, duel: 5, carnivalBet: -1, carnivalClear1: 4, carnivalClear2: 3, carnivalClear3: 2, carnivalClear4: 1, carnivalFail: -2 };
   const SKILL_TARGET = { food: 'food', wet: 'wet', friend: 'friend' };
   const SKILL_LABEL = {
     food: 'フード×2',
@@ -731,6 +743,7 @@
 const ITEM_LABEL = {
     gather: '🏁集合',
     food: '🍔フード',
+    foodComplete: '🍔フード完食',
     friend: '👋知り合い',
     greet: '🎭グリーティング',
     wet: '💦びしょ濡れ',
@@ -755,6 +768,10 @@ const ITEM_LABEL = {
     if (!saved) return;
     const s = JSON.parse(saved);
     Object.assign(state, s);
+    state.counts = Object.assign({ ...DEFAULT_COUNTS }, s.counts);
+    for (const key in state.counts) {
+      if (!Number.isFinite(state.counts[key])) state.counts[key] = 0;
+    }
   }
 
 function restoreUI() {
@@ -943,7 +960,7 @@ function restoreUI() {
     localStorage.removeItem(SAVE_KEY);
     state.skill = null;
     state.teamName = '';
-    state.counts = { gather: 0, food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0, duel: 0, carnivalBet: 0, carnivalClear1: 0, carnivalClear2: 0, carnivalClear3: 0, carnivalClear4: 0, carnivalFail: 0 };
+    state.counts = { ...DEFAULT_COUNTS };
     state.waitAttractions = [];
     state.gameStarted = false;
 
