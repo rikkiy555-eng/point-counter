@@ -810,6 +810,14 @@
         <button class="undo-btn" onclick="subtractPoint('gather')">取消</button>
       </div>
     </div>
+    <div class="point-btn" onclick="addPoint('gatherFail')">
+      <div class="btn-left">
+        <div class="btn-name">🏁 集合失敗</div>      </div>
+      <div class="btn-right">
+        <div class="btn-badge" style="background:#2a1a1a; color:#e06060;">−5</div>
+        <button class="undo-btn" onclick="event.stopPropagation(); subtractPoint('gatherFail')">取消</button>
+      </div>
+    </div>
   </div>
 
   <button class="reset-btn" onclick="showResetModal()">リセット（ゲーム終了）</button>
@@ -828,7 +836,7 @@
 </div>
 
 <script>
-  const DEFAULT_COUNTS = { gather: 0, food: 0, foodComplete: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0, duel: 0, carnivalBet: 0, carnivalClear1: 0, carnivalClear2: 0, carnivalClear3: 0, carnivalClear4: 0, carnivalFail: 0, shootout: 0 };
+  const DEFAULT_COUNTS = { gather: 0, gatherFail: 0, food: 0, foodComplete: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0, duel: 0, carnivalBet: 0, carnivalClear1: 0, carnivalClear2: 0, carnivalClear3: 0, carnivalClear4: 0, carnivalFail: 0, shootout: 0 };
 
   const state = {
     skill: null,
@@ -838,7 +846,7 @@
     gameStarted: false,
   };
 
-  const BASE_POINTS = { gather: 10, food: 1, foodComplete: 1, friend: 1, greet: 1, wet: 1, art: 1, wpc: 2, duel: 5, carnivalBet: -1, carnivalClear1: 4, carnivalClear2: 3, carnivalClear3: 2, carnivalClear4: 1, carnivalFail: -2, shootout: 1 };
+  const BASE_POINTS = { gather: 10, gatherFail: -5, food: 1, foodComplete: 1, friend: 1, greet: 1, wet: 1, art: 1, wpc: 2, duel: 5, carnivalBet: -1, carnivalClear1: 4, carnivalClear2: 3, carnivalClear3: 2, carnivalClear4: 1, carnivalFail: -2, shootout: 1 };
   const SKILL_TARGET = { food: 'food', wet: 'wet', friend: 'friend' };
   const SKILL_LABEL = {
     food: 'フード×2',
@@ -848,6 +856,7 @@
   };
 const ITEM_LABEL = {
     gather: '🏁集合',
+    gatherFail: '🏁集合失敗',
     food: '🍔フード完食（道化師）',
     foodComplete: '🍔フード完食',
     friend: '👋知り合い',
