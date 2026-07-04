@@ -551,8 +551,17 @@
   </div>
 
   <!-- ＋1ボタン群 -->
-  <div class="section-title">＋1 ポイント</div>
   <div class="btn-grid">
+    <button class="point-btn" onclick="togglePlus1Menu()">
+      <div class="btn-left">
+        <div class="btn-name">＋1 ポイント</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">タップして項目を表示</div>
+      </div>
+      <div class="btn-right">
+        <span id="plus1-arrow" style="font-size:1.1rem; color:var(--text2);">▼</span>
+      </div>
+    </button>
+  </div>
+  <div class="btn-grid" id="plus1-menu" style="display:none;">
     <div class="point-btn">
       <div class="btn-left">
         <div class="btn-name">🍔 フード完食</div>      </div>
@@ -937,6 +946,14 @@ function restoreUI() {
     document.getElementById(`wait-pts-${idx}`).textContent = Math.floor(a.minutes / 10) + 'pt';
     saveState();
     updateTotal();
+  }
+
+  function togglePlus1Menu() {
+    const menu = document.getElementById('plus1-menu');
+    const arrow = document.getElementById('plus1-arrow');
+    const isOpen = menu.style.display === 'flex';
+    menu.style.display = isOpen ? 'none' : 'flex';
+    arrow.textContent = isOpen ? '▼' : '▲';
   }
 
   function toggleCarnivalMenu() {
