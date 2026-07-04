@@ -534,16 +534,18 @@
   </div>
 
   <!-- 道化師専用ボタン -->
-  <div class="section-title">🃏 道化師ボーナス</div>
-  <div class="btn-grid" style="margin-bottom:20px;">
-    <div class="point-btn" style="border-color:var(--accent); box-shadow:0 0 8px #e0606044;">
-      <div class="btn-left">
-        <div class="btn-name">🍔 フード完食（道化師）</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">1種類につき1pt</div>
-      </div>
-      <div class="btn-right">
-        <div class="btn-badge" id="badge-food">＋1</div>
-        <button class="counter-btn counter-plus" onclick="addPoint('food')">＋</button>
-        <button class="undo-btn" onclick="subtractPoint('food')">取消</button>
+  <div id="clown-bonus-section">
+    <div class="section-title">🃏 道化師ボーナス</div>
+    <div class="btn-grid" style="margin-bottom:20px;">
+      <div class="point-btn" style="border-color:var(--accent); box-shadow:0 0 8px #e0606044;">
+        <div class="btn-left">
+          <div class="btn-name">🍔 フード完食（道化師）</div>          <div style="font-size:0.72rem; color:#888; margin-top:2px;">1種類につき1pt</div>
+        </div>
+        <div class="btn-right">
+          <div class="btn-badge" id="badge-food">＋1</div>
+          <button class="counter-btn counter-plus" onclick="addPoint('food')">＋</button>
+          <button class="undo-btn" onclick="subtractPoint('food')">取消</button>
+        </div>
       </div>
     </div>
   </div>
@@ -801,6 +803,7 @@ function restoreUI() {
 
     if (state.skill === 'wait') {
       document.getElementById('wait-section').classList.add('visible');
+      document.getElementById('clown-bonus-section').style.display = 'none';
       state.waitAttractions.forEach((a, idx) => addWaitEntryDOM(idx, a));
     } else {
       const key = SKILL_TARGET[state.skill];
@@ -832,6 +835,7 @@ function restoreUI() {
 
     if (state.skill === 'wait') {
       document.getElementById('wait-section').classList.add('visible');
+      document.getElementById('clown-bonus-section').style.display = 'none';
     } else {
       const key = SKILL_TARGET[state.skill];
       const badgeEl = document.getElementById('badge-' + key);
@@ -988,6 +992,7 @@ function restoreUI() {
     });
 
     document.getElementById('wait-section').classList.remove('visible');
+    document.getElementById('clown-bonus-section').style.display = '';
     document.getElementById('wait-list').innerHTML = '';
     document.getElementById('total-display').innerHTML = '0 <span>pt</span>';
     document.getElementById('breakdown').innerHTML = '';
