@@ -641,14 +641,13 @@
     </button>
   </div>
   <div class="btn-grid" id="carnival-menu" style="display:none;">
-    <div class="point-btn">
+    <div class="point-btn" onclick="addPoint('carnivalBet')">
       <div class="btn-left">
         <div class="btn-name">🎫 挑戦する（賭け）</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">1ポイント賭けて挑戦・支払えば最大2人まで挑戦可能</div>
       </div>
       <div class="btn-right">
         <div class="btn-badge" style="background:#2a1a1a; color:#e06060;">−1</div>
-        <button class="counter-btn counter-plus" onclick="addPoint('carnivalBet')">＋</button>
-        <button class="counter-btn counter-minus" onclick="subtractPoint('carnivalBet')">−</button>
+        <button class="counter-btn counter-minus" onclick="event.stopPropagation(); subtractPoint('carnivalBet')">−</button>
       </div>
     </div>
     <div class="point-btn">
@@ -687,13 +686,12 @@
         <button class="counter-btn counter-minus" onclick="subtractPoint('carnivalClear4')">−</button>
       </div>
     </div>
-    <div class="point-btn">
+    <div class="point-btn" onclick="addPoint('carnivalFail')">
       <div class="btn-left">
         <div class="btn-name">❌ 失敗</div>      </div>
       <div class="btn-right">
         <div class="btn-badge" style="background:#2a1a1a; color:#e06060;">−2</div>
-        <button class="counter-btn counter-plus" onclick="addPoint('carnivalFail')">＋</button>
-        <button class="counter-btn counter-minus" onclick="subtractPoint('carnivalFail')">−</button>
+        <button class="counter-btn counter-minus" onclick="event.stopPropagation(); subtractPoint('carnivalFail')">−</button>
       </div>
     </div>
   </div>
