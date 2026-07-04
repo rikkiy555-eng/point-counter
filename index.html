@@ -533,6 +533,18 @@
     <div id="breakdown" style="margin-top:10px; font-size:0.78rem; color:var(--text2); display:flex; flex-wrap:wrap; gap:6px; justify-content:center;"></div>
   </div>
 
+  <!-- 全フードチェックリスト -->
+  <div class="btn-grid">
+    <button class="point-btn" onclick="openFoodChecklistModal()">
+      <div class="btn-left">
+        <div class="btn-name">📋 全フードチェックリスト</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">食べたフードをチェック（ポイントには影響しません）</div>
+      </div>
+      <div class="btn-right">
+        <span id="food-checklist-progress" style="font-size:0.85rem; color:var(--text2);">0/0</span>
+      </div>
+    </button>
+  </div>
+
   <!-- 待ち時間セクション -->
   <div id="wait-section">
     <h3>⏱️ アトラクション待ち時間</h3>
@@ -829,14 +841,30 @@
   </div>
 </div>
 
+<!-- 全フードチェックリストモーダル -->
+<div class="modal-overlay" id="food-checklist-modal">
+  <div class="modal" style="max-width:400px; max-height:80vh; display:flex; flex-direction:column; text-align:left;">
+    <h2 style="text-align:center;">📋 全フードチェックリスト</h2>
+    <div id="food-checklist-list" style="overflow-y:auto; display:flex; flex-direction:column; gap:10px; margin:16px 0;"></div>
+    <div class="modal-btns">
+      <button class="modal-confirm" style="width:100%;" onclick="closeFoodChecklistModal()">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const DEFAULT_COUNTS = { gather: 0, gatherFail: 0, food: 0, foodComplete: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0, duel: 0, carnivalBet: 0, carnivalClear1: 0, carnivalClear2: 0, carnivalClear3: 0, carnivalClear4: 0, carnivalFail: 0, shootout: 0 };
+
+  // 全フードチェックリスト（ポイント計算とは無関係）。フード名が決まったらここに追加する。
+  const FOOD_LIST = [
+  ];
 
   const state = {
     skill: null,
     teamName: '',
     counts: { ...DEFAULT_COUNTS },
     waitAttractions: [],
+    foodChecklist: {},
     gameStarted: false,
   };
 
@@ -908,6 +936,7 @@ function restoreUI() {
       if (badgeEl) { badgeEl.textContent = '＋1 ×2'; badgeEl.classList.add('x2'); }
     }
 
+    updateFoodChecklistProgress();
     updateTotal();
   }
 
@@ -939,6 +968,7 @@ function restoreUI() {
       if (badgeEl) { badgeEl.textContent = '＋1 ×2'; badgeEl.classList.add('x2'); }
     }
 
+    updateFoodChecklistProgress();
     updateTotal();
   }
 
@@ -1124,6 +1154,43 @@ function restoreUI() {
     document.getElementById('reset-modal').classList.remove('visible');
   }
 
+  function renderFoodChecklist() {
+    const container = document.getElementById('food-checklist-list');
+    if (FOOD_LIST.length === 0) {
+      container.innerHTML = '<p style="color:var(--text2); font-size:0.85rem; text-align:center;">リストは準備中です</p>';
+    } else {
+      container.innerHTML = FOOD_LIST.map(name => `
+        <label style="display:flex; align-items:center; gap:10px; background:var(--bg3); border-radius:8px; padding:10px 12px; cursor:pointer;">
+          <input type="checkbox" ${state.foodChecklist[name] ? 'checked' : ''} onchange="toggleFoodChecklistItem('${escapeHtml(name)}', this.checked)" style="width:20px; height:20px; flex-shrink:0;">
+          <span>${escapeHtml(name)}</span>
+        </label>
+      `).join('');
+    }
+    updateFoodChecklistProgress();
+  }
+
+  function toggleFoodChecklistItem(name, checked) {
+    state.foodChecklist[name] = checked;
+    saveState();
+    updateFoodChecklistProgress();
+  }
+
+  function updateFoodChecklistProgress() {
+    const total = FOOD_LIST.length;
+    const done = FOOD_LIST.filter(n => state.foodChecklist[n]).length;
+    const el = document.getElementById('food-checklist-progress');
+    if (el) el.textContent = `${done}/${total}`;
+  }
+
+  function openFoodChecklistModal() {
+    renderFoodChecklist();
+    document.getElementById('food-checklist-modal').classList.add('visible');
+  }
+
+  function closeFoodChecklistModal() {
+    document.getElementById('food-checklist-modal').classList.remove('visible');
+  }
+
   function resetGame() {
     hideResetModal();
     localStorage.removeItem(SAVE_KEY);
@@ -1131,6 +1198,7 @@ function restoreUI() {
     state.teamName = '';
     state.counts = { ...DEFAULT_COUNTS };
     state.waitAttractions = [];
+    state.foodChecklist = {};
     state.gameStarted = false;
 
     document.querySelectorAll('.clown-opt').forEach(b => b.classList.remove('selected'));
@@ -1151,6 +1219,7 @@ function restoreUI() {
     document.getElementById('total-display').innerHTML = '0 <span>pt</span>';
     document.getElementById('breakdown').innerHTML = '';
     document.getElementById('team-name-input').value = '';
+    updateFoodChecklistProgress();
 
     document.getElementById('counter-screen').style.display = 'none';
     document.getElementById('setup-screen').style.display = 'flex';
