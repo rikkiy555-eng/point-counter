@@ -618,6 +618,19 @@
     </div>
   </div>
 
+  <!-- マス⑫に止まったら開放 -->
+  <div class="btn-grid">
+    <button class="point-btn" onclick="toggleMasu12Menu()">
+      <div class="btn-left">
+        <div class="btn-name">🎲 マス⑫に止まったら開放</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">タップして中の項目を表示</div>
+      </div>
+      <div class="btn-right">
+        <span id="masu12-arrow" style="font-size:1.1rem; color:var(--text2);">▼</span>
+      </div>
+    </button>
+  </div>
+  <div id="masu12-menu" style="display:none;">
+
   <!-- ジャングルカーニバル -->
   <div class="btn-grid">
     <button class="point-btn" onclick="toggleCarnivalMenu()">
@@ -683,6 +696,8 @@
         <button class="undo-btn" onclick="event.stopPropagation(); subtractPoint('carnivalFail')">取消</button>
       </div>
     </div>
+  </div>
+
   </div>
 
   <!-- シューティングギャラリー対決 -->
@@ -950,6 +965,14 @@ function restoreUI() {
     const arrow = document.getElementById('plus1-arrow');
     const isOpen = menu.style.display === 'flex';
     menu.style.display = isOpen ? 'none' : 'flex';
+    arrow.textContent = isOpen ? '▼' : '▲';
+  }
+
+  function toggleMasu12Menu() {
+    const menu = document.getElementById('masu12-menu');
+    const arrow = document.getElementById('masu12-arrow');
+    const isOpen = menu.style.display === 'block';
+    menu.style.display = isOpen ? 'none' : 'block';
     arrow.textContent = isOpen ? '▼' : '▲';
   }
 
