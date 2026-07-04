@@ -533,6 +533,14 @@
     <div id="breakdown" style="margin-top:10px; font-size:0.78rem; color:var(--text2); display:flex; flex-wrap:wrap; gap:6px; justify-content:center;"></div>
   </div>
 
+  <!-- 待ち時間セクション -->
+  <div id="wait-section">
+    <h3>⏱️ アトラクション待ち時間</h3>
+    <p style="font-size:0.78rem; color:#aaa; margin-bottom:12px;">並び始めの時間を入力 ／ 1の位は切り捨て（例：45分→4pt）</p>
+    <div class="wait-list" id="wait-list"></div>
+    <button id="add-attraction-counter-btn" onclick="addAttractionOnCounter()" style="margin-top:10px; background:none; border:1px dashed #555; color:#aaa; border-radius:8px; padding:10px; font-size:0.85rem; cursor:pointer; width:100%;">＋ アトラクションを追加</button>
+  </div>
+
   <!-- 道化師専用ボタン -->
   <div id="clown-bonus-section">
     <div class="section-title">🃏 道化師ボーナス</div>
@@ -760,14 +768,6 @@
         <button class="undo-btn" onclick="event.stopPropagation(); addShootout()">取消</button>
       </div>
     </div>
-  </div>
-
-  <!-- 待ち時間セクション -->
-  <div id="wait-section">
-    <h3>⏱️ アトラクション待ち時間</h3>
-    <p style="font-size:0.78rem; color:#aaa; margin-bottom:12px;">並び始めの時間を入力 ／ 1の位は切り捨て（例：45分→4pt）</p>
-    <div class="wait-list" id="wait-list"></div>
-    <button id="add-attraction-counter-btn" onclick="addAttractionOnCounter()" style="margin-top:10px; background:none; border:1px dashed #555; color:#aaa; border-radius:8px; padding:10px; font-size:0.85rem; cursor:pointer; width:100%;">＋ アトラクションを追加</button>
   </div>
 
   <button class="reset-btn" onclick="showResetModal()">リセット（ゲーム終了）</button>
