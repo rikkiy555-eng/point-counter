@@ -492,7 +492,7 @@
     <h2>スキル効果を選択</h2>
 
     <button class="clown-opt" data-skill="food" onclick="selectSkill(this)">
-      🍔 夏メニュー を2倍
+      🍔 フード を2倍
     </button>
 
     <button class="clown-opt" data-skill="wait" onclick="selectSkill(this)">
@@ -523,7 +523,7 @@
   <div class="btn-grid">
     <div class="point-btn">
       <div class="btn-left">
-        <div class="btn-name">🍔 夏メニューを食べる</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">1種類につき1pt</div>
+        <div class="btn-name">🍔 フードを食べる</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">1種類につき1pt</div>
       </div>
       <div class="btn-right">
         <div class="btn-badge" id="badge-food">＋1</div>
@@ -653,14 +653,14 @@
   const BASE_POINTS = { gather: 10, food: 1, friend: 1, greet: 1, wet: 1, art: 1, wpc: 2, duel: 5 };
   const SKILL_TARGET = { food: 'food', wet: 'wet', friend: 'friend' };
   const SKILL_LABEL = {
-    food: '夏メニュー×2',
+    food: 'フード×2',
     wet: 'びしょ濡れ×2',
     friend: '知り合い×2',
     wait: '待ち時間ポイント',
   };
 const ITEM_LABEL = {
     gather: '🏁集合',
-    food: '🍔夏メニュー',
+    food: '🍔フード',
     friend: '👋知り合い',
     greet: '🎭グリーティング',
     wet: '💦びしょ濡れ',
