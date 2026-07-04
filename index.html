@@ -618,6 +618,66 @@
     </div>
   </div>
 
+  <!-- ジャングルカーニバル -->
+  <div class="section-title">🎪 ジャングルカーニバル</div>
+  <div class="btn-grid">
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">🎫 挑戦する（賭け）</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">1ポイント賭けて挑戦・支払えば最大2人まで挑戦可能</div>
+      </div>
+      <div class="btn-right">
+        <div class="btn-badge" style="background:#2a1a1a; color:#e06060;">−1</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('carnivalBet')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('carnivalBet')">−</button>
+      </div>
+    </div>
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">🏆 1回目でクリア</div>      </div>
+      <div class="btn-right">
+        <div class="btn-badge" style="background:#103a10; color:#60e060;">＋4</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('carnivalClear1')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('carnivalClear1')">−</button>
+      </div>
+    </div>
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">🏆 2回目でクリア</div>      </div>
+      <div class="btn-right">
+        <div class="btn-badge" style="background:#103a10; color:#60e060;">＋3</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('carnivalClear2')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('carnivalClear2')">−</button>
+      </div>
+    </div>
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">🏆 3回目でクリア</div>      </div>
+      <div class="btn-right">
+        <div class="btn-badge" style="background:#103a10; color:#60e060;">＋2</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('carnivalClear3')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('carnivalClear3')">−</button>
+      </div>
+    </div>
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">🏆 4回目でクリア</div>      </div>
+      <div class="btn-right">
+        <div class="btn-badge" style="background:#103a10; color:#60e060;">＋1</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('carnivalClear4')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('carnivalClear4')">−</button>
+      </div>
+    </div>
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">❌ 失敗</div>      </div>
+      <div class="btn-right">
+        <div class="btn-badge" style="background:#2a1a1a; color:#e06060;">−2</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('carnivalFail')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('carnivalFail')">−</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 待ち時間セクション -->
   <div id="wait-section">
     <h3>⏱️ アトラクション待ち時間</h3>
@@ -645,12 +705,12 @@
   const state = {
     skill: null,
     teamName: '',
-    counts: { gather: 0, food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0, duel: 0 },
+    counts: { gather: 0, food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0, duel: 0, carnivalBet: 0, carnivalClear1: 0, carnivalClear2: 0, carnivalClear3: 0, carnivalClear4: 0, carnivalFail: 0 },
     waitAttractions: [],
     gameStarted: false,
   };
 
-  const BASE_POINTS = { gather: 10, food: 1, friend: 1, greet: 1, wet: 1, art: 1, wpc: 2, duel: 5 };
+  const BASE_POINTS = { gather: 10, food: 1, friend: 1, greet: 1, wet: 1, art: 1, wpc: 2, duel: 5, carnivalBet: -1, carnivalClear1: 4, carnivalClear2: 3, carnivalClear3: 2, carnivalClear4: 1, carnivalFail: -2 };
   const SKILL_TARGET = { food: 'food', wet: 'wet', friend: 'friend' };
   const SKILL_LABEL = {
     food: 'フード×2',
@@ -667,6 +727,12 @@ const ITEM_LABEL = {
     art: '🎨キャストアート',
     wpc: '✨WPCキャスト',
     duel: '⚔️決闘',
+    carnivalBet: '🎫カーニバル賭け',
+    carnivalClear1: '🏆カーニバル1回目クリア',
+    carnivalClear2: '🏆カーニバル2回目クリア',
+    carnivalClear3: '🏆カーニバル3回目クリア',
+    carnivalClear4: '🏆カーニバル4回目クリア',
+    carnivalFail: '❌カーニバル失敗',
   };
   const SAVE_KEY = 'point_counter_state';
 
@@ -859,7 +925,7 @@ function restoreUI() {
     localStorage.removeItem(SAVE_KEY);
     state.skill = null;
     state.teamName = '';
-    state.counts = { gather: 0, food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0, duel: 0 };
+    state.counts = { gather: 0, food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0, duel: 0, carnivalBet: 0, carnivalClear1: 0, carnivalClear2: 0, carnivalClear3: 0, carnivalClear4: 0, carnivalFail: 0 };
     state.waitAttractions = [];
     state.gameStarted = false;
 
