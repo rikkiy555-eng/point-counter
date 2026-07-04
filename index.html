@@ -360,6 +360,20 @@
 
     .counter-plus:active { opacity: 0.7; }
 
+    .undo-btn {
+      background: var(--minus-bg);
+      color: var(--minus-fg);
+      border: none;
+      border-radius: 10px;
+      padding: 5px 10px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      flex-shrink: 0;
+      line-height: 1.4;
+    }
+
+    .undo-btn:active { opacity: 0.7; }
+
     /* 待ち時間セクション */
     #wait-section {
       display: none;
@@ -647,7 +661,7 @@
       </div>
       <div class="btn-right">
         <div class="btn-badge" style="background:#2a1a1a; color:#e06060;">−1</div>
-        <button class="counter-btn counter-minus" onclick="event.stopPropagation(); subtractPoint('carnivalBet')">−</button>
+        <button class="undo-btn" onclick="event.stopPropagation(); subtractPoint('carnivalBet')">取消</button>
       </div>
     </div>
     <div class="point-btn">
@@ -691,7 +705,7 @@
         <div class="btn-name">❌ 失敗</div>      </div>
       <div class="btn-right">
         <div class="btn-badge" style="background:#2a1a1a; color:#e06060;">−2</div>
-        <button class="counter-btn counter-minus" onclick="event.stopPropagation(); subtractPoint('carnivalFail')">−</button>
+        <button class="undo-btn" onclick="event.stopPropagation(); subtractPoint('carnivalFail')">取消</button>
       </div>
     </div>
   </div>
