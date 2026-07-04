@@ -700,6 +700,19 @@
 
   </div>
 
+  <!-- マス㉑に止まったら開放 -->
+  <div class="btn-grid">
+    <button class="point-btn" onclick="toggleMasu21Menu()">
+      <div class="btn-left">
+        <div class="btn-name">🎲 マス㉑に止まったら開放</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">タップして中の項目を表示</div>
+      </div>
+      <div class="btn-right">
+        <span id="masu21-arrow" style="font-size:1.1rem; color:var(--text2);">▼</span>
+      </div>
+    </button>
+  </div>
+  <div id="masu21-menu" style="display:none;">
+
   <!-- シューティングギャラリー対決 -->
   <div class="btn-grid">
     <button class="point-btn" onclick="toggleShootoutMenu()">
@@ -742,6 +755,21 @@
     </div>
   </div>
 
+  </div>
+
+  <!-- マス㉞に止まったら開放 -->
+  <div class="btn-grid">
+    <button class="point-btn" onclick="toggleMasu34Menu()">
+      <div class="btn-left">
+        <div class="btn-name">🎲 マス㉞に止まったら開放</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">タップして中の項目を表示</div>
+      </div>
+      <div class="btn-right">
+        <span id="masu34-arrow" style="font-size:1.1rem; color:var(--text2);">▼</span>
+      </div>
+    </button>
+  </div>
+  <div id="masu34-menu" style="display:none;">
+
   <!-- かくれんぼ -->
   <div class="btn-grid">
     <div class="point-btn">
@@ -754,6 +782,8 @@
         <button class="undo-btn" style="background:var(--minus-bg); color:var(--minus-fg);" onclick="subtractPoint('duel')">負け</button>
       </div>
     </div>
+  </div>
+
   </div>
 
   <!-- ＋2ボタン -->
@@ -971,6 +1001,22 @@ function restoreUI() {
   function toggleMasu12Menu() {
     const menu = document.getElementById('masu12-menu');
     const arrow = document.getElementById('masu12-arrow');
+    const isOpen = menu.style.display === 'block';
+    menu.style.display = isOpen ? 'none' : 'block';
+    arrow.textContent = isOpen ? '▼' : '▲';
+  }
+
+  function toggleMasu21Menu() {
+    const menu = document.getElementById('masu21-menu');
+    const arrow = document.getElementById('masu21-arrow');
+    const isOpen = menu.style.display === 'block';
+    menu.style.display = isOpen ? 'none' : 'block';
+    arrow.textContent = isOpen ? '▼' : '▲';
+  }
+
+  function toggleMasu34Menu() {
+    const menu = document.getElementById('masu34-menu');
+    const arrow = document.getElementById('masu34-arrow');
     const isOpen = menu.style.display === 'block';
     menu.style.display = isOpen ? 'none' : 'block';
     arrow.textContent = isOpen ? '▼' : '▲';
