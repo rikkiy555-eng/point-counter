@@ -589,6 +589,21 @@
     </div>
   </div>
 
+  <!-- ±5ボタン -->
+  <div class="section-title">±5 ポイント</div>
+  <div class="btn-grid">
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">⚔️ 決闘</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">勝ち＋5／負け−5</div>
+      </div>
+      <div class="btn-right">
+        <div class="btn-badge" style="background:#3a2a10; color:#e0a860;">±5</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('duel')">＋</button>
+        <button class="counter-btn counter-minus" onclick="subtractPoint('duel')">−</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ＋10ボタン -->
   <div class="section-title">＋10 ポイント</div>
   <div class="btn-grid">
@@ -630,12 +645,12 @@
   const state = {
     skill: null,
     teamName: '',
-    counts: { gather: 0, food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0 },
+    counts: { gather: 0, food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0, duel: 0 },
     waitAttractions: [],
     gameStarted: false,
   };
 
-  const BASE_POINTS = { gather: 10, food: 1, friend: 1, greet: 1, wet: 1, art: 1, wpc: 2 };
+  const BASE_POINTS = { gather: 10, food: 1, friend: 1, greet: 1, wet: 1, art: 1, wpc: 2, duel: 5 };
   const SKILL_TARGET = { food: 'food', wet: 'wet', friend: 'friend' };
   const SKILL_LABEL = {
     food: '夏メニュー×2',
@@ -651,6 +666,7 @@ const ITEM_LABEL = {
     wet: '💦びしょ濡れ',
     art: '🎨キャストアート',
     wpc: '✨WPCキャスト',
+    duel: '⚔️決闘',
   };
   const SAVE_KEY = 'point_counter_state';
 
@@ -717,6 +733,8 @@ function restoreUI() {
       const badgeEl = document.getElementById('badge-' + key);
       if (badgeEl) { badgeEl.textContent = '＋1 ×2'; badgeEl.classList.add('x2'); }
     }
+
+    updateTotal();
   }
 
   function addWaitEntryDOM(idx, a) {
@@ -777,7 +795,7 @@ function restoreUI() {
   }
 
   function subtractPoint(key) {
-    if (state.counts[key] <= 0) return;
+    if (key !== 'duel' && state.counts[key] <= 0) return;
     state.counts[key]--;
     saveState();
     updateTotal();
@@ -806,7 +824,11 @@ function restoreUI() {
       let pts = BASE_POINTS[key] * count;
       const isDouble = state.skill !== 'wait' && key === SKILL_TARGET[state.skill];
       if (isDouble) pts *= 2;
-      items.push(`${ITEM_LABEL[key]}×${count}${isDouble ? '×2' : ''}＝${pts}pt`);
+      if (key === 'duel') {
+        items.push(`${ITEM_LABEL[key]}${pts >= 0 ? '＋' : ''}${pts}pt`);
+      } else {
+        items.push(`${ITEM_LABEL[key]}×${count}${isDouble ? '×2' : ''}＝${pts}pt`);
+      }
     }
     if (state.skill === 'wait') {
       state.waitAttractions.forEach(a => {
@@ -837,7 +859,7 @@ function restoreUI() {
     localStorage.removeItem(SAVE_KEY);
     state.skill = null;
     state.teamName = '';
-    state.counts = { gather: 0, food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0 };
+    state.counts = { gather: 0, food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0, duel: 0 };
     state.waitAttractions = [];
     state.gameStarted = false;
 
@@ -856,6 +878,7 @@ function restoreUI() {
     document.getElementById('wait-section').classList.remove('visible');
     document.getElementById('wait-list').innerHTML = '';
     document.getElementById('total-display').innerHTML = '0 <span>pt</span>';
+    document.getElementById('breakdown').innerHTML = '';
     document.getElementById('team-name-input').value = '';
 
     document.getElementById('counter-screen').style.display = 'none';
