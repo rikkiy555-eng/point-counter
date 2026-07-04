@@ -631,20 +631,6 @@
     </div>
   </div>
 
-  <!-- ±5ボタン -->
-  <div class="btn-grid">
-    <div class="point-btn">
-      <div class="btn-left">
-        <div class="btn-name">⚔️ 決闘</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">勝ち＋5／負け−5</div>
-      </div>
-      <div class="btn-right">
-        <div class="btn-badge" style="background:#3a2a10; color:#e0a860;">±5</div>
-        <button class="counter-btn counter-plus" onclick="addPoint('duel')">＋</button>
-        <button class="undo-btn" onclick="subtractPoint('duel')">取消</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ＋10ボタン -->
   <div class="btn-grid">
     <div class="point-btn">
@@ -767,6 +753,20 @@
     </div>
   </div>
 
+  <!-- かくれんぼ -->
+  <div class="btn-grid">
+    <div class="point-btn">
+      <div class="btn-left">
+        <div class="btn-name">🙈 かくれんぼ</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">勝ち＋5／負け−5</div>
+      </div>
+      <div class="btn-right">
+        <div class="btn-badge" style="background:#3a2a10; color:#e0a860;">±5</div>
+        <button class="counter-btn counter-plus" onclick="addPoint('duel')">＋</button>
+        <button class="undo-btn" onclick="subtractPoint('duel')">取消</button>
+      </div>
+    </div>
+  </div>
+
   <button class="reset-btn" onclick="showResetModal()">リセット（ゲーム終了）</button>
 </div>
 
@@ -810,7 +810,7 @@ const ITEM_LABEL = {
     wet: '💦びしょ濡れ',
     art: '🎨キャストアート',
     wpc: '✨WPCキャスト',
-    duel: '⚔️決闘',
+    duel: '🙈かくれんぼ',
     carnivalBet: '🎫カーニバル賭け',
     carnivalClear1: '🏆カーニバル1回目クリア',
     carnivalClear2: '🏆カーニバル2回目クリア',
