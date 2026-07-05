@@ -1420,10 +1420,13 @@ function restoreUI() {
     if (FOOD_LIST.length === 0) {
       container.innerHTML = '<p style="color:var(--text2); font-size:0.85rem; text-align:center;">リストは準備中です</p>';
     } else {
-      container.innerHTML = FOOD_CATEGORIES.map(cat => `
+      container.innerHTML = FOOD_CATEGORIES.map((cat, i) => `
         <div>
-          <div style="font-size:0.8rem; color:var(--accent); font-weight:bold; margin-bottom:8px;">${escapeHtml(cat.name)}</div>
-          <div style="display:flex; flex-direction:column; gap:8px;">
+          <button type="button" onclick="toggleFoodCategory(${i})" style="width:100%; display:flex; align-items:center; justify-content:space-between; background:var(--bg3); border:none; border-radius:8px; padding:10px 12px; cursor:pointer; font-family:inherit;">
+            <span style="font-size:0.85rem; color:var(--accent); font-weight:bold;">${escapeHtml(cat.name)}</span>
+            <span id="food-cat-arrow-${i}" style="font-size:1rem; color:var(--text2);">▼</span>
+          </button>
+          <div id="food-cat-items-${i}" style="display:none; flex-direction:column; gap:8px; margin-top:8px;">
             ${cat.items.map(name => `
               <label style="display:flex; align-items:center; gap:10px; background:var(--bg3); border-radius:8px; padding:10px 12px; cursor:pointer;">
                 <input type="checkbox" ${state.foodChecklist[name] ? 'checked' : ''} onchange="toggleFoodChecklistItem('${escapeHtml(name)}', this.checked)" style="width:20px; height:20px; flex-shrink:0;">
@@ -1435,6 +1438,14 @@ function restoreUI() {
       `).join('');
     }
     updateFoodChecklistProgress();
+  }
+
+  function toggleFoodCategory(i) {
+    const el = document.getElementById(`food-cat-items-${i}`);
+    const arrow = document.getElementById(`food-cat-arrow-${i}`);
+    const isOpen = el.style.display === 'flex';
+    el.style.display = isOpen ? 'none' : 'flex';
+    arrow.textContent = isOpen ? '▼' : '▲';
   }
 
   function toggleFoodChecklistItem(name, checked) {
