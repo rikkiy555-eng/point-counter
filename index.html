@@ -1157,9 +1157,11 @@ const ITEM_LABEL = {
     if (!saved) return;
     const s = JSON.parse(saved);
     Object.assign(state, s);
-    state.counts = Object.assign({ ...DEFAULT_COUNTS }, s.counts);
-    for (const key in state.counts) {
-      if (!Number.isFinite(state.counts[key])) state.counts[key] = 0;
+    state.counts = { ...DEFAULT_COUNTS };
+    if (s.counts) {
+      for (const key of Object.keys(DEFAULT_COUNTS)) {
+        if (Number.isFinite(s.counts[key])) state.counts[key] = s.counts[key];
+      }
     }
   }
 
