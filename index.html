@@ -1116,7 +1116,6 @@
     counts: { ...DEFAULT_COUNTS },
     waitAttractions: [],
     foodChecklist: {},
-    clownFoodBonus: false,
     gameStarted: false,
   };
 
@@ -1355,6 +1354,15 @@ function restoreUI() {
     updateTotal();
   }
 
+  function foodChecklistPoints() {
+    let normal = 0, clown = 0;
+    for (const v of Object.values(state.foodChecklist)) {
+      if (v === 'clown') clown++;
+      else if (v === 'normal' || v === true) normal++;
+    }
+    return { normal, clown, total: normal + clown * 2 };
+  }
+
   function calcTotal() {
     let total = 0;
     for (const [key, count] of Object.entries(state.counts)) {
@@ -1365,8 +1373,7 @@ function restoreUI() {
     if (state.skill === 'wait') {
       for (const a of state.waitAttractions) total += Math.floor(a.minutes / 10);
     }
-    total += Object.values(state.foodChecklist).filter(Boolean).length;
-    if (state.clownFoodBonus) total += 2;
+    total += foodChecklistPoints().total;
     return total;
   }
 
@@ -1394,12 +1401,12 @@ function restoreUI() {
         }
       });
     }
-    const checkedFoodCount = Object.values(state.foodChecklist).filter(Boolean).length;
-    if (checkedFoodCount > 0) {
-      items.push(`📋チェックリスト×${checkedFoodCount}＝${checkedFoodCount}pt`);
+    const foodPts = foodChecklistPoints();
+    if (foodPts.normal > 0) {
+      items.push(`📋チェックリスト×${foodPts.normal}＝${foodPts.normal}pt`);
     }
-    if (state.clownFoodBonus) {
-      items.push(`🃏道化師専用＋2pt`);
+    if (foodPts.clown > 0) {
+      items.push(`🃏道化師専用×${foodPts.clown}＝${foodPts.clown * 2}pt`);
     }
     const bd = document.getElementById('breakdown');
     if (bd) {
@@ -1419,28 +1426,35 @@ function restoreUI() {
 
   function renderFoodChecklist() {
     const container = document.getElementById('food-checklist-list');
-    const clownRow = state.skill === 'food' ? `
-      <label style="display:flex; align-items:center; gap:10px; background:var(--bg3); border:1px solid var(--accent); border-radius:8px; padding:10px 12px; cursor:pointer;">
-        <input type="checkbox" ${state.clownFoodBonus ? 'checked' : ''} onchange="toggleClownFoodBonus(this.checked)" style="width:20px; height:20px; flex-shrink:0;">
-        <span>🃏 道化師専用（＋2pt）</span>
-      </label>
-    ` : '';
+    const isClownSkill = state.skill === 'food';
     if (FOOD_LIST.length === 0) {
-      container.innerHTML = clownRow + '<p style="color:var(--text2); font-size:0.85rem; text-align:center;">リストは準備中です</p>';
+      container.innerHTML = '<p style="color:var(--text2); font-size:0.85rem; text-align:center;">リストは準備中です</p>';
     } else {
-      container.innerHTML = clownRow + FOOD_CATEGORIES.map((cat, i) => `
+      container.innerHTML = FOOD_CATEGORIES.map((cat, i) => `
         <div>
           <button type="button" onclick="toggleFoodCategory(${i})" style="width:100%; display:flex; align-items:center; justify-content:space-between; background:var(--bg3); border:none; border-radius:8px; padding:10px 12px; cursor:pointer; font-family:inherit;">
             <span style="font-size:0.85rem; color:var(--accent); font-weight:bold;">${escapeHtml(cat.name)}</span>
             <span id="food-cat-arrow-${i}" style="font-size:1rem; color:var(--text2);">▼</span>
           </button>
           <div id="food-cat-items-${i}" style="display:none; flex-direction:column; gap:8px; margin-top:8px;">
-            ${cat.items.map(name => `
-              <label style="display:flex; align-items:center; gap:10px; background:var(--bg3); border-radius:8px; padding:10px 12px; cursor:pointer;">
-                <input type="checkbox" ${state.foodChecklist[name] ? 'checked' : ''} onchange="toggleFoodChecklistItem('${escapeHtml(name)}', this.checked)" style="width:20px; height:20px; flex-shrink:0;">
-                <span>${escapeHtml(name)}</span>
-              </label>
-            `).join('')}
+            ${cat.items.map((name, j) => {
+              const val = state.foodChecklist[name];
+              const isNormal = val === 'normal' || val === true;
+              const isClown = val === 'clown';
+              const normalId = `fc-${i}-${j}-n`;
+              const clownId = `fc-${i}-${j}-c`;
+              const clownPart = isClownSkill ? `
+                <span style="font-size:0.68rem; color:var(--accent);">🃏＋2</span>
+                <input type="checkbox" id="${clownId}" ${isClown ? 'checked' : ''} onchange="toggleFoodItemChoice('${escapeHtml(name)}', 'clown', this.checked, '${normalId}')" style="width:20px; height:20px; flex-shrink:0; accent-color:var(--accent);">
+              ` : '';
+              return `
+                <div style="display:flex; align-items:center; gap:8px; background:var(--bg3); border-radius:8px; padding:10px 12px;">
+                  <input type="checkbox" id="${normalId}" ${isNormal ? 'checked' : ''} onchange="toggleFoodItemChoice('${escapeHtml(name)}', 'normal', this.checked, '${clownId}')" style="width:20px; height:20px; flex-shrink:0;">
+                  <span style="flex:1; cursor:pointer;" onclick="document.getElementById('${normalId}').click()">${escapeHtml(name)}</span>
+                  ${clownPart}
+                </div>
+              `;
+            }).join('')}
           </div>
         </div>
       `).join('');
@@ -1456,16 +1470,16 @@ function restoreUI() {
     arrow.textContent = isOpen ? '▼' : '▲';
   }
 
-  function toggleFoodChecklistItem(name, checked) {
-    state.foodChecklist[name] = checked;
+  function toggleFoodItemChoice(name, mode, checked, otherId) {
+    if (checked) {
+      state.foodChecklist[name] = mode;
+      const other = document.getElementById(otherId);
+      if (other) other.checked = false;
+    } else {
+      state.foodChecklist[name] = false;
+    }
     saveState();
     updateFoodChecklistProgress();
-    updateTotal();
-  }
-
-  function toggleClownFoodBonus(checked) {
-    state.clownFoodBonus = checked;
-    saveState();
     updateTotal();
   }
 
@@ -1493,7 +1507,6 @@ function restoreUI() {
     state.counts = { ...DEFAULT_COUNTS };
     state.waitAttractions = [];
     state.foodChecklist = {};
-    state.clownFoodBonus = false;
     state.gameStarted = false;
 
     document.querySelectorAll('.clown-opt').forEach(b => b.classList.remove('selected'));
