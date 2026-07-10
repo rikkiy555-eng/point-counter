@@ -1116,6 +1116,7 @@
     counts: { ...DEFAULT_COUNTS },
     waitAttractions: [],
     foodChecklist: {},
+    clownFoodBonus: false,
     gameStarted: false,
   };
 
@@ -1365,6 +1366,7 @@ function restoreUI() {
       for (const a of state.waitAttractions) total += Math.floor(a.minutes / 10);
     }
     total += Object.values(state.foodChecklist).filter(Boolean).length;
+    if (state.clownFoodBonus) total += 2;
     return total;
   }
 
@@ -1396,6 +1398,9 @@ function restoreUI() {
     if (checkedFoodCount > 0) {
       items.push(`📋チェックリスト×${checkedFoodCount}＝${checkedFoodCount}pt`);
     }
+    if (state.clownFoodBonus) {
+      items.push(`🃏道化師専用＋2pt`);
+    }
     const bd = document.getElementById('breakdown');
     if (bd) {
       bd.innerHTML = items.map(t =>
@@ -1414,10 +1419,16 @@ function restoreUI() {
 
   function renderFoodChecklist() {
     const container = document.getElementById('food-checklist-list');
+    const clownRow = state.skill === 'food' ? `
+      <label style="display:flex; align-items:center; gap:10px; background:var(--bg3); border:1px solid var(--accent); border-radius:8px; padding:10px 12px; cursor:pointer;">
+        <input type="checkbox" ${state.clownFoodBonus ? 'checked' : ''} onchange="toggleClownFoodBonus(this.checked)" style="width:20px; height:20px; flex-shrink:0;">
+        <span>🃏 道化師専用（＋2pt）</span>
+      </label>
+    ` : '';
     if (FOOD_LIST.length === 0) {
-      container.innerHTML = '<p style="color:var(--text2); font-size:0.85rem; text-align:center;">リストは準備中です</p>';
+      container.innerHTML = clownRow + '<p style="color:var(--text2); font-size:0.85rem; text-align:center;">リストは準備中です</p>';
     } else {
-      container.innerHTML = FOOD_CATEGORIES.map((cat, i) => `
+      container.innerHTML = clownRow + FOOD_CATEGORIES.map((cat, i) => `
         <div>
           <button type="button" onclick="toggleFoodCategory(${i})" style="width:100%; display:flex; align-items:center; justify-content:space-between; background:var(--bg3); border:none; border-radius:8px; padding:10px 12px; cursor:pointer; font-family:inherit;">
             <span style="font-size:0.85rem; color:var(--accent); font-weight:bold;">${escapeHtml(cat.name)}</span>
@@ -1452,6 +1463,12 @@ function restoreUI() {
     updateTotal();
   }
 
+  function toggleClownFoodBonus(checked) {
+    state.clownFoodBonus = checked;
+    saveState();
+    updateTotal();
+  }
+
   function updateFoodChecklistProgress() {
     const total = FOOD_LIST.length;
     const done = FOOD_LIST.filter(n => state.foodChecklist[n]).length;
@@ -1476,6 +1493,7 @@ function restoreUI() {
     state.counts = { ...DEFAULT_COUNTS };
     state.waitAttractions = [];
     state.foodChecklist = {};
+    state.clownFoodBonus = false;
     state.gameStarted = false;
 
     document.querySelectorAll('.clown-opt').forEach(b => b.classList.remove('selected'));
