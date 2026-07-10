@@ -374,6 +374,35 @@
 
     .undo-btn:active { opacity: 0.7; }
 
+    .food-choice-btn {
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      color: var(--text2);
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 0.72rem;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .food-choice-btn:active { opacity: 0.7; }
+
+    .food-choice-btn.normal.selected {
+      background: var(--plus-bg);
+      color: var(--plus-fg);
+      border-color: var(--plus-fg);
+    }
+
+    .food-choice-btn.clown.selected {
+      background: var(--accent-bg);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
     /* 待ち時間セクション */
     #wait-section {
       display: none;
@@ -1443,15 +1472,16 @@ function restoreUI() {
               const isClown = val === 'clown';
               const normalId = `fc-${i}-${j}-n`;
               const clownId = `fc-${i}-${j}-c`;
-              const clownPart = isClownSkill ? `
-                <span style="font-size:0.68rem; color:var(--accent);">🃏＋2</span>
-                <input type="checkbox" id="${clownId}" ${isClown ? 'checked' : ''} onchange="toggleFoodItemChoice('${escapeHtml(name)}', 'clown', this.checked, '${normalId}')" style="width:20px; height:20px; flex-shrink:0; accent-color:var(--accent);">
+              const clownBtn = isClownSkill ? `
+                <button type="button" id="${clownId}" class="food-choice-btn clown${isClown ? ' selected' : ''}" onclick="setFoodChoice('${escapeHtml(name)}', 'clown', '${normalId}', '${clownId}')">🃏＋2</button>
               ` : '';
               return `
-                <div style="display:flex; align-items:center; gap:8px; background:var(--bg3); border-radius:8px; padding:10px 12px;">
-                  <input type="checkbox" id="${normalId}" ${isNormal ? 'checked' : ''} onchange="toggleFoodItemChoice('${escapeHtml(name)}', 'normal', this.checked, '${clownId}')" style="width:20px; height:20px; flex-shrink:0;">
-                  <span style="flex:1; cursor:pointer;" onclick="document.getElementById('${normalId}').click()">${escapeHtml(name)}</span>
-                  ${clownPart}
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--bg3); border-radius:8px; padding:10px 12px;">
+                  <span style="flex:1; font-size:0.88rem;">${escapeHtml(name)}</span>
+                  <div style="display:flex; gap:6px;">
+                    <button type="button" id="${normalId}" class="food-choice-btn normal${isNormal ? ' selected' : ''}" onclick="setFoodChoice('${escapeHtml(name)}', 'normal', '${normalId}', '${clownId}')">✓＋1</button>
+                    ${clownBtn}
+                  </div>
                 </div>
               `;
             }).join('')}
@@ -1470,14 +1500,17 @@ function restoreUI() {
     arrow.textContent = isOpen ? '▼' : '▲';
   }
 
-  function toggleFoodItemChoice(name, mode, checked, otherId) {
-    if (checked) {
-      state.foodChecklist[name] = mode;
-      const other = document.getElementById(otherId);
-      if (other) other.checked = false;
-    } else {
-      state.foodChecklist[name] = false;
-    }
+  function setFoodChoice(name, mode, normalId, clownId) {
+    const current = state.foodChecklist[name];
+    const isSameAsCurrent = current === mode || (current === true && mode === 'normal');
+    const newVal = isSameAsCurrent ? false : mode;
+    state.foodChecklist[name] = newVal;
+
+    const normalBtn = document.getElementById(normalId);
+    const clownBtn = document.getElementById(clownId);
+    if (normalBtn) normalBtn.classList.toggle('selected', newVal === 'normal');
+    if (clownBtn) clownBtn.classList.toggle('selected', newVal === 'clown');
+
     saveState();
     updateFoodChecklistProgress();
     updateTotal();
