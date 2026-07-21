@@ -879,9 +879,21 @@
 <div class="modal-overlay" id="sugoroku-modal">
   <div class="modal" style="max-width:420px; max-height:80vh; display:flex; flex-direction:column; text-align:left;">
     <h2 style="text-align:center;">🎲 すごろくマス一覧</h2>
+    <button type="button" onclick="openScoringModal()" style="background:var(--bg3); border:1px solid var(--accent); color:var(--accent); border-radius:8px; padding:8px 10px; font-size:0.78rem; font-weight:bold; cursor:pointer; font-family:inherit; margin-top:10px;">📊 得点パターンを見る</button>
     <div id="sugoroku-list" style="overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin:16px 0;"></div>
     <div class="modal-btns">
       <button class="modal-confirm" style="width:100%;" onclick="closeSugorokuModal()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- 得点パターンモーダル -->
+<div class="modal-overlay" id="scoring-modal" style="z-index:110;">
+  <div class="modal" style="max-width:360px; max-height:75vh; display:flex; flex-direction:column; text-align:left;">
+    <h2 style="text-align:center;">📊 得点パターン</h2>
+    <div id="scoring-list" style="overflow-y:auto; font-size:0.82rem; line-height:1.6; margin:14px 0;"></div>
+    <div class="modal-btns">
+      <button class="modal-confirm" style="width:100%;" onclick="closeScoringModal()">閉じる</button>
     </div>
   </div>
 </div>
@@ -1184,6 +1196,27 @@
     { num: 41, text: "モンスターズインクで人間の靴下を見つけてしまった、パークを一周する" },
     { num: 42, text: "スウィートハートカフェ前でポップコーンを買う（チームで一品）" },
     { num: 43, text: "ゴール！ミッキー花壇でチーム写真を撮る" },
+  ];
+
+  const SCORING_LINES = [
+    "得点の仕方",
+    "・フード、ドリンク1種類につき完食で1点（被り不可）",
+    "・びしょ濡れ1ヶ所につき1点✖️人数（濡れるゾーンや濡れるアトラクション、ミストファン等）",
+    "・キャラクターと一緒に写真を撮る1キャラ1点",
+    "・副務やWPCに関わる人と一緒に写真を撮る1点",
+    "・トイファンズスタンプラリー成功で5点（1度きり）",
+    "・集合に成功10点",
+    "",
+    "道化師",
+    "・アトラク選択",
+    "アトラクションの待ち時間10分につき1点（被りなし）",
+    "120分のアトラクションの場合12点。DPA使用した場合はその時点の待ち時間で計算すること。",
+    "・フード選択",
+    "道化師がフード1人で完食したら3点",
+    "→時間制限を設けたから2点のまま",
+    "",
+    "減点のパターン",
+    "・集合マスの参加を断念の場合-5点を捨ててキャンセル可能（2チーム戦の場合は相手に支払う）",
   ];
 
   const state = {
@@ -1594,6 +1627,30 @@ function restoreUI() {
 
   function closeSugorokuModal() {
     document.getElementById('sugoroku-modal').classList.remove('visible');
+  }
+
+  function renderScoringPattern() {
+    const container = document.getElementById('scoring-list');
+    const headers = ['得点の仕方', '道化師', '減点のパターン'];
+    container.innerHTML = SCORING_LINES.map(line => {
+      if (line === '') return '<div style="height:6px;"></div>';
+      if (headers.includes(line)) {
+        return `<div style="font-weight:bold; color:var(--accent); margin-top:6px;">${escapeHtml(line)}</div>`;
+      }
+      if (line.startsWith('・')) {
+        return `<div style="padding-left:1em; text-indent:-1em;">${escapeHtml(line)}</div>`;
+      }
+      return `<div style="padding-left:1em; color:var(--text2); font-size:0.78rem;">${escapeHtml(line)}</div>`;
+    }).join('');
+  }
+
+  function openScoringModal() {
+    renderScoringPattern();
+    document.getElementById('scoring-modal').classList.add('visible');
+  }
+
+  function closeScoringModal() {
+    document.getElementById('scoring-modal').classList.remove('visible');
   }
 
   function resetGame() {
