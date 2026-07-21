@@ -574,6 +574,16 @@
     </button>
   </div>
 
+  <!-- すごろくマス一覧 -->
+  <div class="btn-grid">
+    <button class="point-btn" onclick="openSugorokuModal()">
+      <div class="btn-left">
+        <div class="btn-name">🎲 すごろくマス一覧</div>        <div style="font-size:0.72rem; color:#888; margin-top:2px;">全マスの内容を確認（ポイントには影響しません）</div>
+      </div>
+      <div class="btn-right"></div>
+    </button>
+  </div>
+
   <!-- 待ち時間セクション -->
   <div id="wait-section">
     <h3>⏱️ アトラクション待ち時間</h3>
@@ -869,6 +879,17 @@
   </div>
 </div>
 
+<!-- すごろくマス一覧モーダル -->
+<div class="modal-overlay" id="sugoroku-modal">
+  <div class="modal" style="max-width:420px; max-height:80vh; display:flex; flex-direction:column; text-align:left;">
+    <h2 style="text-align:center;">🎲 すごろくマス一覧</h2>
+    <div id="sugoroku-list" style="overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin:16px 0;"></div>
+    <div class="modal-btns">
+      <button class="modal-confirm" style="width:100%;" onclick="closeSugorokuModal()">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const DEFAULT_COUNTS = { gather: 0, gatherFail: 0, food: 0, friend: 0, greet: 0, wet: 0, art: 0, wpc: 0, duel: 0, carnivalBet: 0, carnivalClear1: 0, carnivalClear2: 0, carnivalClear3: 0, carnivalClear4: 0, carnivalFail: 0, shootout: 0, stampRally: 0 };
 
@@ -1122,6 +1143,52 @@
     },
   ];
   const FOOD_LIST = FOOD_CATEGORIES.flatMap(c => c.items);
+
+  const SUGOROKU_LIST = [
+    { num: 1, text: "バルーンを買う（チームで1個）" },
+    { num: 2, text: "ペニーアーケードに行って今日の運勢を占う" },
+    { num: 3, text: "スウィートハートカフェで飲食！（チームで一品）" },
+    { num: 4, text: "アイスクリームコーンで飲食！（チームで一品）" },
+    { num: 5, text: "ウォルト像前でチーム写真を撮る" },
+    { num: 6, text: "リフレッシュメントコーナーで飲食（チームで一品）" },
+    { num: 7, text: "カリブの海賊に乗る" },
+    { num: 8, text: "ガゼボ横でポップコーンを買う（チームで一品）" },
+    { num: 9, text: "パークサイドワゴンでチュロスを買う（チームで一品）" },
+    { num: 10, text: "ザ・ガゼーボで飲食する（チームで一品）" },
+    { num: 11, text: "ロイヤルストリートの優雅な街並みでウィンドショッピングを楽しもう！（どっかでチーム写真撮ってね！）" },
+    { num: 12, text: "【挑戦】ジャングルカーニバルに行く！自分のチームのポイントを1ポイント賭ける。ゲームに挑戦して1回目でクリア＝4p、2回目でクリア＝3p、3回目でクリア＝2p、4回目でクリア＝1p、失敗したら-2p（ポイントを支払えば最大2人まで挑戦可能）" },
+    { num: 13, text: "ジャングルクルーズクルーズに乗る" },
+    { num: 14, text: "ウエスタンリバー鉄道に乗る" },
+    { num: 15, text: "チキルームに行く！鑑賞後スタートに戻る" },
+    { num: 16, text: "トレポス横のポップコーンを買う（チームで一品,）" },
+    { num: 17, text: "オムニバスに乗る（やってなかったら笑顔でパレードルート一周）" },
+    { num: 18, text: "シンデレラ城前でチーム写真を撮る" },
+    { num: 19, text: "カントリーベアシアターで鑑賞" },
+    { num: 20, text: "カウボーイクックハウスで飲食（チームで一品）" },
+    { num: 21, text: "【対決】シューティングギャラリーに他の1チームを呼び出しで所持しているポイントを賭けて勝負しよう！賭けられるのは最大5ポイントまで。2回勝った方の勝利。" },
+    { num: 22, text: "ウッドチャックで飲食（チームで一品）" },
+    { num: 23, text: "トムソーヤ島に行く！キャンプ地でチーム写真を撮る" },
+    { num: 24, text: "マークトゥエイン号に乗る" },
+    { num: 25, text: "ラケッティで飲食（チーム一品）食べ終わった後に場所交換" },
+    { num: 26, text: "【チャレンジ】ホーンテッドマンション前でチーム写真。-2.2.4.6が出たらその分戻る。-1.1.3.5が出たらその分進む。（マイナスはその逆になる）" },
+    { num: 27, text: "【全員集合】城裏で集合写真を撮る" },
+    { num: 28, text: "フィルハーマジックを鑑賞する" },
+    { num: 29, text: "ファンタジーランドの好きなアトラクションにひとつ乗る" },
+    { num: 30, text: "プー前のポップコーンワゴンを買う（チームで一品）" },
+    { num: 31, text: "【運試し】トゥーンタウンの花火の導火線を一回押そう！爆発したらサイコロの効果が2ターン逆になる（-6〜+2）" },
+    { num: 32, text: "グットタイムカフェで飲食（チームで一品）" },
+    { num: 33, text: "ガジェットのゴーコースターに乗る（濡れたくない場合は乗らない人の人数✖︎-2点）" },
+    { num: 34, text: "【対決】ドナルドのボート、チップとデールのツリーハウス、ミニーの家のどこかに隠れる。その後他チームを呼び出し1ヶ所を選んでもらう。見つかってしまったら相手チームに5点あげる。見つからなかったら5点もらう。" },
+    { num: 35, text: "ミッキーかミニーに会いに行く。-1.1.3.5が出たらミッキーに会いに行く。-2.2.4.6が出たらミニーに会いに行く。" },
+    { num: 36, text: "【交代】モーリスのコテージが爆発した。相手チームと場所交代する。" },
+    { num: 37, text: "ガストンで飲食する（チームで一品）" },
+    { num: 38, text: "【全員集合】美女と野獣の城で集合写真を撮ろう！" },
+    { num: 39, text: "トゥモローランドテラスで飲食する（チームで一品）" },
+    { num: 40, text: "スターツアーズに乗ろう！どうしても乗れない人はパンギャラで飲食して待っていよう！（待つ人は1人一品）" },
+    { num: 41, text: "モンスターズインクで人間の靴下を見つけてしまった、パークを一周する" },
+    { num: 42, text: "スウィートハートカフェ前でポップコーンを買う（チームで一品）" },
+    { num: 43, text: "ゴール！ミッキー花壇でチーム写真を撮る" },
+  ];
 
   const state = {
     skill: null,
@@ -1512,6 +1579,25 @@ function restoreUI() {
 
   function closeFoodChecklistModal() {
     document.getElementById('food-checklist-modal').classList.remove('visible');
+  }
+
+  function renderSugorokuList() {
+    const container = document.getElementById('sugoroku-list');
+    container.innerHTML = SUGOROKU_LIST.map(sq => `
+      <div style="display:flex; gap:10px; background:var(--bg3); border-radius:8px; padding:10px 12px;">
+        <div style="flex-shrink:0; font-weight:bold; color:var(--accent); min-width:2.4em;">${sq.num}</div>
+        <div style="font-size:0.85rem; line-height:1.4;">${escapeHtml(sq.text)}</div>
+      </div>
+    `).join('');
+  }
+
+  function openSugorokuModal() {
+    renderSugorokuList();
+    document.getElementById('sugoroku-modal').classList.add('visible');
+  }
+
+  function closeSugorokuModal() {
+    document.getElementById('sugoroku-modal').classList.remove('visible');
   }
 
   function resetGame() {
